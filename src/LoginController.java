@@ -12,30 +12,40 @@ public class LoginController {
     private JTextField usernameField;
     private JPasswordField passwordField;
     private JButton loginButton;
-    private LoginSuccessListener loginSuccessListener;
     private JButton registerButton;
     private Map<String, String> userCredentials = new HashMap<>();
     private static final String USER_CREDENTIALS_FILE = "userCredentials.csv";
 
     public LoginController() {
         this.frame = new JFrame("BrokeBroker Login");
-        this.frame.setSize(300, 200);
         this.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        this.frame.setLayout(new BorderLayout());
+        this.frame.setLayout(new BorderLayout(10, 10)); // Setzt Abstände zwischen den Komponenten
         renderFrame();
+        this.frame.pack(); // Passt die Größe dem Inhalt an
+        this.frame.setLocationRelativeTo(null); // Zentriert das Fenster auf dem Bildschirm
+        this.frame.setVisible(true);
     }
 
     private void renderFrame() {
-        JPanel panel = new JPanel();
-        panel.setLayout(new GridLayout(3, 2));
+        // Logo einfügen
+        ImageIcon logoIcon = new ImageIcon("img/brokebroker.png");
+        Image image = logoIcon.getImage();
+        Image newimg = image.getScaledInstance(90, 90, Image.SCALE_SMOOTH);
+        logoIcon = new ImageIcon(newimg);
+        JLabel logoLabel = new JLabel(logoIcon);
+        logoLabel.setHorizontalAlignment(JLabel.CENTER);
+        logoLabel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        panel.add(new JLabel("Benutzername:"));
-        usernameField = new JTextField();
-        panel.add(usernameField);
+        // Panel für Login-Felder
+        JPanel loginPanel = new JPanel();
+        loginPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        loginPanel.setLayout(new BoxLayout(loginPanel, BoxLayout.Y_AXIS));
 
-        panel.add(new JLabel("Passwort:"));
-        passwordField = new JPasswordField();
-        panel.add(passwordField);
+        JLabel usernameLabel = new JLabel("Benutzername:");
+        usernameField = new JTextField(15);
+
+        JLabel passwordLabel = new JLabel("Passwort:");
+        passwordField = new JPasswordField(15);
 
         loginButton = new JButton("Einloggen");
         loginButton.addActionListener(new ActionListener() {
@@ -44,7 +54,7 @@ public class LoginController {
                 performLogin();
             }
         });
-        panel.add(loginButton);
+
         registerButton = new JButton("Registrieren");
         registerButton.addActionListener(new ActionListener() {
             @Override
@@ -52,13 +62,29 @@ public class LoginController {
                 registerUser();
             }
         });
-        panel.add(registerButton);
 
-        this.frame.add(panel, BorderLayout.CENTER);
-        this.frame.pack();
-        this.frame.setVisible(true);
+        // Komponenten zentrieren
+        usernameLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        usernameField.setAlignmentX(Component.CENTER_ALIGNMENT);
+        passwordLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        passwordField.setAlignmentX(Component.CENTER_ALIGNMENT);
+        loginButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        registerButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        // Komponenten zum Panel hinzufügen
+        loginPanel.add(usernameLabel);
+        loginPanel.add(usernameField);
+        loginPanel.add(passwordLabel);
+        loginPanel.add(passwordField);
+        loginPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+        loginPanel.add(loginButton);
+        loginPanel.add(Box.createRigidArea(new Dimension(0, 5)));
+        loginPanel.add(registerButton);
+
+        // Fügt das Logo und das Login-Panel zum Frame hinzu
+        this.frame.add(logoLabel, BorderLayout.NORTH);
+        this.frame.add(loginPanel, BorderLayout.CENTER);
     }
-
     private void registerUser() {
         String username = JOptionPane.showInputDialog(frame, "Benutzername");
         String password = JOptionPane.showInputDialog(frame, "Passwort");
@@ -115,7 +141,13 @@ public class LoginController {
         void onLoginSuccess();
     }
 
-    public void setLoginSuccessListener(LoginSuccessListener listener) {
-        this.loginSuccessListener = listener;
-    }
+    //public void setLoginSuccessListener(LoginSuccessListener listener) {
+    //    this.loginSuccessListener = listener;
+    //}
+
+    // ... Restliche Methoden wie registerUser, isValidInput, saveUserCredentials,
+    // loadUserCredentials, authenticateUser, performLogin ...
+
+    // Main-Methode zum Starten des Login-Fensters
+
 }
