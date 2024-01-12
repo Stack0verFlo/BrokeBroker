@@ -18,4 +18,13 @@ class MainApp {
         this.frame.pack();
         this.frame.setVisible(true);
     }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                LoginController loginController = new LoginController();
+            }
+        });
+    }
 }
