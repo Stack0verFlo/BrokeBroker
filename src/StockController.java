@@ -2,6 +2,7 @@ import java.util.*;
 
 public class StockController {
     private List<String> availableStocks;
+    private Map<String, Double> stockPrices;
 
     public StockController() {
             this.availableStocks = Arrays.asList(
@@ -27,7 +28,20 @@ public class StockController {
                     "VZ",     // Verizon
                     "SAP"     //SAP
             );
+            this.stockPrices = new HashMap<>();
+            initializeStojPrices();
+
         }
+    private void initializeStojPrices() {
+        Random random = new Random();
+        for (String stock : availableStocks) {
+            double price = 100 + (1000 - 100) * random.nextDouble();
+            stockPrices.put(stock, price);
+        }
+    }
+    public double getPrice(String stockSymbol) {
+        return stockPrices.getOrDefault(stockSymbol,0.0);
+    }
     public List<String> getAvailableStocks() {
         return availableStocks;
     }

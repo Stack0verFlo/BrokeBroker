@@ -50,27 +50,36 @@ public class MainApp {
     private void showStockMarket() {
         JPanel stockMarketPanel = new JPanel();
 
-        JComboBox<String> stockList = new JComboBox<>(stockController.getAvailableStocks().toArray(new String[0]));
-        JTextField quantityField = new JTextField(5); // Feld für die Menge
+        JComboBox<String> stockList = new JComboBox<>();
+        for (String stock : stockController.getAvailableStocks()) {
+            double price = stockController.getPrice(stock);
+            String stockItem = String.format("%s - %.2f€", stock, price);
+            stockList.addItem(stockItem);
+        }
+        JTextField quantityField = new JTextField(5);
         JButton buyButton = new JButton("Kaufen");
-
         buyButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                try {
-                    int quantity = Integer.parseInt(quantityField.getText());
-                    if (quantity > 0) {
-                        String selectedStock = (String) stockList.getSelectedItem();
-                        portfolioController.buyStock(loggedInUser, selectedStock, quantity);
-                        updatePortfolioTable(); // Aktualisiert die Portfolio-Tabelle
-                    } else {
-                        JOptionPane.showMessageDialog(frame, "Bitte geben Sie eine positive Zahl ein.", "Fehler", JOptionPane.ERROR_MESSAGE);
+                String selectedStock = (String) stockList.getSelectedItem();
+                if (selectedStock != null) {
+                    selectedStock = selectedStock.split(" - ")[0];
+                    int quantity;
+                    try {
+                        quantity = Integer.parseInt(quantityField.getText());
+                        if (quantity > 0) {
+                            portfolioController.buyStock(loggedInUser, selectedStock, quantity);
+                            updatePortfolioTable();
+                        } else {
+                            JOptionPane.showMessageDialog(frame, "Bitte geben Sie eine positive Zahl ein");
+                        }
+                    } catch (NumberFormatException ex) {
+                        JOptionPane.showMessageDialog(frame, "Bitte geben Sie eine positive Zahl ein");
                     }
-                } catch (NumberFormatException ex) {
-                    JOptionPane.showMessageDialog(frame, "Bitte geben Sie eine gültige Zahl ein.", "Fehler", JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
+
 
         stockMarketPanel.add(new JLabel("Aktie:"));
         stockMarketPanel.add(stockList);
