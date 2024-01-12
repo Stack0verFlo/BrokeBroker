@@ -57,14 +57,17 @@ public class MainApp {
         buyButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String selectedStock = (String) stockList.getSelectedItem();
-                int quantity;
                 try {
-                    quantity = Integer.parseInt(quantityField.getText());
-                    portfolioController.buyStock(loggedInUser, selectedStock, quantity);
-                    updatePortfolioTable(); // Aktualisiert die Portfolio-Tabelle
+                    int quantity = Integer.parseInt(quantityField.getText());
+                    if (quantity > 0) {
+                        String selectedStock = (String) stockList.getSelectedItem();
+                        portfolioController.buyStock(loggedInUser, selectedStock, quantity);
+                        updatePortfolioTable(); // Aktualisiert die Portfolio-Tabelle
+                    } else {
+                        JOptionPane.showMessageDialog(frame, "Bitte geben Sie eine positive Zahl ein.", "Fehler", JOptionPane.ERROR_MESSAGE);
+                    }
                 } catch (NumberFormatException ex) {
-                    JOptionPane.showMessageDialog(frame, "Bitte geben Sie eine gültige Menge ein.", "Fehler", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(frame, "Bitte geben Sie eine gültige Zahl ein.", "Fehler", JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
