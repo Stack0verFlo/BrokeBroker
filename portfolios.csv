@@ -1,6 +1,7 @@
+test,GOOGL,8
 test,AAPL,10
 test,TSLA,5
-test,GOOGL,8
+Marius,GOOGL,90
+Marius,AAPL,123
 Marius,TSLA,10
-Marius,NVDIA,3
-Marius,SAP,1
+

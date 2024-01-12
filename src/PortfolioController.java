@@ -19,11 +19,6 @@ public class PortfolioController {
         }
         return data;
     }
-    public void displayPortfolio(String username) {
-        Map<String, Integer> portfolio = userPortfolios.getOrDefault(username, new HashMap<>());
-        // Zeigt das Portfolio für den Benutzer an
-        // Beispiel: UI-Logik zur Anzeige der Aktien und Mengen
-    }
 
     private void loadUserPortfolios() {
         try (BufferedReader reader = new BufferedReader(new FileReader("portfolios.csv"))) {
@@ -31,6 +26,21 @@ public class PortfolioController {
             while ((line = reader.readLine()) != null) {
                 String[] data = line.split(",");
                 userPortfolios.computeIfAbsent(data[0], k -> new HashMap<>()).put(data[1], Integer.parseInt(data[2]));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    public void buyStock(String username, String stockSymbol, int quantity) {
+        userPortfolios.get(username).merge(stockSymbol,quantity,Integer::sum);
+        saveUserPortfolios();
+    }
+    public void saveUserPortfolios() {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("portfolios.csv"))) {
+            for (Map.Entry<String, Map<String, Integer>> userEntry : userPortfolios.entrySet()) {
+                for (Map.Entry<String, Integer> stockEntry : userEntry.getValue().entrySet()) {
+                    writer.write(userEntry.getKey() + "," + stockEntry.getKey() + "," + stockEntry.getValue() + "\n");
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
