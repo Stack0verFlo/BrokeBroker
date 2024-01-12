@@ -63,8 +63,7 @@ public class LoginController {
         String username = JOptionPane.showInputDialog(frame, "Benutzername");
         String password = JOptionPane.showInputDialog(frame, "Passwort");
         if (isValidInput(username, password)) {
-            userCredentials.put(username, password);
-            saveUserCredentials();
+            saveUserCredentials(username, password);
             JOptionPane.showMessageDialog(frame, "Benutzer erfolgreich registriert!", "Erfolg", JOptionPane.INFORMATION_MESSAGE);
         }
     }
@@ -72,11 +71,9 @@ public class LoginController {
         return username != null && password != null && !username.isEmpty() && !password.isEmpty();
     }
 
-    public void saveUserCredentials() {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(USER_CREDENTIALS_FILE))) {
-            for (Map.Entry<String, String> entry : userCredentials.entrySet()) {
-                writer.write(entry.getKey() + "," + entry.getValue() + "\n");
-            }
+    public void saveUserCredentials(String username, String password) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("userCredentials.csv", true))) {
+            writer.write(username + "," + password + "\n");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -106,24 +103,19 @@ public class LoginController {
     private void performLogin() {
         String username = usernameField.getText();
         String password = new String(passwordField.getPassword());
-
         if (authenticateUser(username, password)) {
-            if (loginSuccessListener != null) {
-                loginSuccessListener.onLoginSuccess();
-            }
             frame.dispose(); // Schließt das Login-Fenster
+            new MainApp(username); // Startet die MainApp mit dem Benutzernamen
         } else {
-            JOptionPane.showMessageDialog(this.frame, "Anmeldefehler: Ungültige Anmeldedaten!", "Fehler", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(frame, "Anmeldefehler: Ungültige Anmeldedaten!", "Fehler", JOptionPane.ERROR_MESSAGE);
         }
     }
 
-    public void addLoginSuccessListener(LoginSuccessListener listener) {
-        this.loginSuccessListener = listener;
-    }
-
-
-
     public interface LoginSuccessListener {
         void onLoginSuccess();
+    }
+
+    public void setLoginSuccessListener(LoginSuccessListener listener) {
+        this.loginSuccessListener = listener;
     }
 }
