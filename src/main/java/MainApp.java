@@ -1,26 +1,17 @@
 import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 public class MainApp {
     private JFrame frame;
-    private String loggedInUser;
-    private PortfolioController portfolioController;
+    private JComboBox<String> stockListComboBox;
+    private JButton showChartButton;
     private StockController stockController;
-    private JTable portfolioTable;
-    private DefaultTableModel portfolioTableModel;
 
     public MainApp(String loggedInUser) {
-        this.loggedInUser = loggedInUser;
-        this.portfolioController = new PortfolioController();
-        this.stockController = new StockController();
+        stockController = new StockController(); // Diese Klasse sollte implementiert sein.
         initializeFrame();
-        initializeMenuBar();
-        initializePortfolioTable();
-        showStockMarket();
-        updatePortfolioTable();
+        initializeStockSelection();
     }
 
     private void initializeFrame() {
@@ -28,71 +19,74 @@ public class MainApp {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new BorderLayout());
         frame.setSize(800, 600);
+        frame.setLocationRelativeTo(null);
     }
 
-    private void initializeMenuBar() {
-        // brauchen wir ein Menüband? Wenn ja was soll rein?
+    /*private void initializeMenuBar() {
+        JMenuBar menuBar = new JMenuBar();
+        JMenu menu = new JMenu("Optionen");
+        JMenuItem showChartMenuItem = new JMenuItem("Aktienchart anzeigen");
+
+        showChartMenuItem.addActionListener(e -> showStockChart());
+
+        menu.add(showChartMenuItem);
+        menuBar.add(menu);
+        frame.setJMenuBar(menuBar);
     }
 
-    private void initializePortfolioTable() {
+    private void showStockChart() {
+        String stockSymbol = JOptionPane.showInputDialog(frame, "Aktiensymbol eingeben:");
+        if (stockSymbol != null && !stockSymbol.trim().isEmpty()) {
+            // Annahme: Die Klasse StockChart hat eine statische Methode displayStockChart, die ein Symbol nimmt.
+            StockChart.displayStockChart(stockSymbol);
+        }
+    }*/
+
+    /*private void initializePortfolioTable() {
         portfolioTableModel = new DefaultTableModel();
         portfolioTable = new JTable(portfolioTableModel);
         frame.add(new JScrollPane(portfolioTable), BorderLayout.CENTER);
-        frame.setVisible(true);
-    }
+    }*/
 
-    private void updatePortfolioTable() {
+    /*private void updatePortfolioTable() {
         Object[][] portfolioData = portfolioController.getPortfolioData(loggedInUser);
         String[] columnNames = {"Aktie", "Anzahl"};
         portfolioTableModel.setDataVector(portfolioData, columnNames);
+    }*/
+
+    private void initializeStockSelection() {
+        JPanel panel = new JPanel(new FlowLayout());
+
+        stockListComboBox = new JComboBox<>();
+        loadStockSymbols();
+
+        showChartButton = new JButton("Chart anzeigen");
+        showChartButton.addActionListener(e -> showSelectedStockChart());
+
+        panel.add(new JLabel("Verfügbare Aktien:"));
+        panel.add(stockListComboBox);
+        panel.add(showChartButton);
+
+        frame.add(panel, BorderLayout.NORTH);
+        frame.setVisible(true);
     }
 
-    private void showStockMarket() {
-        JPanel stockMarketPanel = new JPanel();
-
-        JComboBox<String> stockList = new JComboBox<>();
-        for (String stock : stockController.getAvailableStocks()) {
-            double price = stockController.getPrice(stock);
-            String stockItem = String.format("%s - %.2f€", stock, price);
-            stockList.addItem(stockItem);
-        }
-        JTextField quantityField = new JTextField(5);
-        JButton buyButton = new JButton("Kaufen");
-        buyButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String selectedStock = (String) stockList.getSelectedItem();
-                if (selectedStock != null) {
-                    selectedStock = selectedStock.split(" - ")[0];
-                    int quantity;
-                    try {
-                        quantity = Integer.parseInt(quantityField.getText());
-                        if (quantity > 0) {
-                            portfolioController.buyStock(loggedInUser, selectedStock, quantity);
-                            updatePortfolioTable();
-                        } else {
-                            JOptionPane.showMessageDialog(frame, "Bitte geben Sie eine positive Zahl ein");
-                        }
-                    } catch (NumberFormatException ex) {
-                        JOptionPane.showMessageDialog(frame, "Bitte geben Sie eine positive Zahl ein");
-                    }
-                }
-            }
-        });
-
-
-        stockMarketPanel.add(new JLabel("Aktie:"));
-        stockMarketPanel.add(stockList);
-        stockMarketPanel.add(new JLabel("Menge:"));
-        stockMarketPanel.add(quantityField);
-        stockMarketPanel.add(buyButton);
-
-        frame.add(stockMarketPanel, BorderLayout.SOUTH);
-        frame.revalidate();
-    }
-
-
-        public static void main (String[]args){
-            SwingUtilities.invokeLater(LoginController::new);
+    private void loadStockSymbols() {
+        // Diese Methode sollte die verfügbaren Aktiensymbole laden.
+        // Beispiel, wie es funktionieren könnte:
+        for (String symbol : stockController.getAvailableStocks()) {
+            stockListComboBox.addItem(symbol);
         }
     }
+
+    private void showSelectedStockChart() {
+        String selectedSymbol = (String) stockListComboBox.getSelectedItem();
+        if (selectedSymbol != null) {
+            StockChart.displayStockChart(selectedSymbol); // Stellen Sie sicher, dass diese Methode implementiert ist.
+        }
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> new LoginController());
+    }
+}
