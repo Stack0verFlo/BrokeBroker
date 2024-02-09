@@ -2,7 +2,9 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 public class MainApp {
     private JFrame frame;
@@ -11,7 +13,7 @@ public class MainApp {
     private StockController stockController;
     private JTable portfolioTable;
     private DefaultTableModel portfolioTableModel;
-    private JComboBox<String> stockList;
+    private JComboBox<String> stockList; // Verlegt auf Klassenebene für breiteren Zugriff
     private JButton showChartButton;
 
     public MainApp(String loggedInUser) {
@@ -35,14 +37,12 @@ public class MainApp {
         frame.setVisible(true);
     }
 
-    private void initializeMenuBar() {
-        // Menüband-Initialisierung (falls erforderlich)
-    }
-
     private void initializePortfolioTable() {
-        portfolioTableModel = new DefaultTableModel();
+        String[] columnNames = {"Aktie", "Anzahl"};
+        portfolioTableModel = new DefaultTableModel(null, columnNames);
         portfolioTable = new JTable(portfolioTableModel);
-        frame.add(new JScrollPane(portfolioTable), BorderLayout.CENTER);
+        JScrollPane scrollPane = new JScrollPane(portfolioTable);
+        frame.add(scrollPane, BorderLayout.CENTER);
     }
 
     private void updatePortfolioTable() {
@@ -50,35 +50,38 @@ public class MainApp {
         String[] columnNames = {"Aktie", "Anzahl"};
         portfolioTableModel.setDataVector(portfolioData, columnNames);
     }
+    private void initializeMenuBar() {
+        JMenuBar menuBar = new JMenuBar();
+
+        JMenu fileMenu = new JMenu("Datei");
+        JMenuItem exitItem = new JMenuItem("Beenden");
+        exitItem.addActionListener(e -> System.exit(0));
+        fileMenu.add(exitItem);
+
+        JMenu helpMenu = new JMenu("Hilfe");
+        JMenuItem aboutItem = new JMenuItem("Über");
+        aboutItem.addActionListener(e -> showAboutDialog());
+        helpMenu.add(aboutItem);
+
+        menuBar.add(fileMenu);
+        menuBar.add(helpMenu);
+
+        frame.setJMenuBar(menuBar);
+    }
+
+    private void showAboutDialog() {
+        JOptionPane.showMessageDialog(frame, "BrokeBroker\nVersion 1.0", "Über", JOptionPane.INFORMATION_MESSAGE);
+    }
+
 
     private void showStockMarket() {
         JPanel stockMarketPanel = new JPanel();
-        stockList = new JComboBox<>();
-        for (String stock : stockController.getAvailableStocks()) {
-            double price = stockController.getPrice(stock);
-            String stockItem = String.format("%s - %.2f€", stock, price);
-            stockList.addItem(stockItem);
-        }
+        stockList = new JComboBox<>(); // Verwenden der Klassenvariable
+        stockController.getAvailableStocks().forEach(stock -> stockList.addItem(stock + " - " + String.format("%.2f€", stockController.getCurrentPrice(stock))));
 
         JTextField quantityField = new JTextField(5);
         JButton buyButton = new JButton("Kaufen");
-        buyButton.addActionListener(e -> {
-            String selectedStockWithPrice = (String) stockList.getSelectedItem();
-            if (selectedStockWithPrice != null) {
-                String selectedStock = selectedStockWithPrice.split(" - ")[0];
-                try {
-                    int quantity = Integer.parseInt(quantityField.getText());
-                    if (quantity > 0) {
-                        portfolioController.buyStock(loggedInUser, selectedStock, quantity);
-                        updatePortfolioTable();
-                    } else {
-                        JOptionPane.showMessageDialog(frame, "Bitte geben Sie eine positive Zahl ein");
-                    }
-                } catch (NumberFormatException ex) {
-                    JOptionPane.showMessageDialog(frame, "Bitte geben Sie eine gültige Zahl ein");
-                }
-            }
-        });
+        buyButton.addActionListener(e -> buyStock());
 
         stockMarketPanel.add(new JLabel("Aktie:"));
         stockMarketPanel.add(stockList);
@@ -89,26 +92,38 @@ public class MainApp {
         frame.add(stockMarketPanel, BorderLayout.SOUTH);
     }
 
+    private void buyStock() {
+        // Ihre Implementierung für den Kaufvorgang
+    }
+
     private void addChartButton() {
         showChartButton = new JButton("Chart anzeigen");
         showChartButton.addActionListener(e -> showSelectedStockChart());
-        frame.add(showChartButton, BorderLayout.NORTH);
-    }
-
-    private void buyStock(String selectedStock, String quantityText) {
-        // Implementierung des Kaufprozesses
+        JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        panel.add(showChartButton);
+        frame.add(panel, BorderLayout.NORTH); // Verbesserte Positionierung
     }
 
     private void showSelectedStockChart() {
         String selectedSymbol = (String) stockList.getSelectedItem();
         if (selectedSymbol != null) {
             selectedSymbol = selectedSymbol.split(" - ")[0];
-            Map<String, Double> priceData = StockPriceSimulator.generatePriceData(selectedSymbol);
+            List<Double> priceData = stockController.getHistoricalPrices(selectedSymbol);
+
+            // Annahme, dass getCurrentPrice den aktuellen Preis liefert
+            double currentPrice = stockController.getCurrentPrice(selectedSymbol);
+
+            // Hinzufügen des aktuellen Preises als letzten Eintrag in die Liste
+            priceData.add(currentPrice);
+
             StockChart.displayStockChart(selectedSymbol, priceData);
         }
     }
 
+
+
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(LoginController::new);
+        SwingUtilities.invokeLater(() -> new LoginController());
     }
 }
+
