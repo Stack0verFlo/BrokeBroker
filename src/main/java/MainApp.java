@@ -3,8 +3,7 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.Objects;
 
 public class MainApp {
     private JFrame frame;
@@ -13,27 +12,27 @@ public class MainApp {
     private StockController stockController;
     private JTable portfolioTable;
     private DefaultTableModel portfolioTableModel;
-    private JComboBox<String> stockList; // Verlegt auf Klassenebene für breiteren Zugriff
+    private JComboBox<String> stockList;
+    private JTextField quantityField;
     private JButton showChartButton;
 
     public MainApp(String loggedInUser) {
         this.loggedInUser = loggedInUser;
         this.portfolioController = new PortfolioController();
         this.stockController = new StockController();
-        initializeFrame();
-        initializeMenuBar();
-        initializePortfolioTable();
-        showStockMarket();
-        updatePortfolioTable();
-        addChartButton();
+        initializeUIComponents();
     }
 
-    private void initializeFrame() {
+    private void initializeUIComponents() {
         frame = new JFrame("BrokeBroker Hauptanwendung");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new BorderLayout());
         frame.setSize(800, 600);
         frame.setLocationRelativeTo(null);
+
+        initializeMenuBar();
+        initializePortfolioTable();
+        showStockMarket();
         frame.setVisible(true);
     }
 
@@ -43,6 +42,7 @@ public class MainApp {
         portfolioTable = new JTable(portfolioTableModel);
         JScrollPane scrollPane = new JScrollPane(portfolioTable);
         frame.add(scrollPane, BorderLayout.CENTER);
+        updatePortfolioTable();
     }
 
     private void updatePortfolioTable() {
@@ -76,25 +76,38 @@ public class MainApp {
 
     private void showStockMarket() {
         JPanel stockMarketPanel = new JPanel();
-        stockList = new JComboBox<>(); // Verwenden der Klassenvariable
-        stockController.getAvailableStocks().forEach(stock -> stockList.addItem(stock + " - " + String.format("%.2f€", stockController.getCurrentPrice(stock))));
+        stockList = new JComboBox<>();
+        stockController.getAvailableStocks().forEach(stock -> {
+            double price = stockController.getCurrentPrice(stock); // Holen des aktuellen Preises
+            stockList.addItem(stock + " - " + String.format("%.2f€", price));
+        });
+        quantityField = new JTextField(5);
 
-        JTextField quantityField = new JTextField(5);
         JButton buyButton = new JButton("Kaufen");
-        buyButton.addActionListener(e -> buyStock());
-
+        buyButton.addActionListener(this::buyStock);
         stockMarketPanel.add(new JLabel("Aktie:"));
         stockMarketPanel.add(stockList);
         stockMarketPanel.add(new JLabel("Menge:"));
         stockMarketPanel.add(quantityField);
         stockMarketPanel.add(buyButton);
 
+        addChartButton();
+
         frame.add(stockMarketPanel, BorderLayout.SOUTH);
     }
 
-    private void buyStock() {
-        // Ihre Implementierung für den Kaufvorgang
+    private void buyStock(ActionEvent e) {
+        String selectedStock = (String) stockList.getSelectedItem();
+        int quantity;
+        try {
+            quantity = Integer.parseInt(quantityField.getText());
+            portfolioController.buyStock(loggedInUser, selectedStock, quantity);
+            updatePortfolioTable();
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(frame, "Bitte geben Sie eine gültige Zahl ein.");
+        }
     }
+
 
     private void addChartButton() {
         showChartButton = new JButton("Chart anzeigen");

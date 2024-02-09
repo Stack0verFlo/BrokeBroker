@@ -25,16 +25,22 @@ public class PortfolioController {
             String line;
             while ((line = reader.readLine()) != null) {
                 String[] data = line.split(",");
-                userPortfolios.computeIfAbsent(data[0], k -> new HashMap<>()).put(data[1], Integer.parseInt(data[2]));
+                if (data.length >= 3) { // Stellen Sie sicher, dass jede Zeile mindestens 3 Elemente hat
+                    userPortfolios.computeIfAbsent(data[0], k -> new HashMap<>()).put(data[1], Integer.parseInt(data[2]));
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+
     public void buyStock(String username, String stockSymbol, int quantity) {
-        userPortfolios.get(username).merge(stockSymbol,quantity,Integer::sum);
+        // Entfernen des Preises aus dem stockSymbol, wenn vorhanden
+        String cleanStockSymbol = stockSymbol.split(" - ")[0]; // Nimmt an, dass der StockSymbol im Format "SYMBOL - PREIS" kommt
+        userPortfolios.computeIfAbsent(username, k -> new HashMap<>()).merge(cleanStockSymbol, quantity, Integer::sum);
         saveUserPortfolios();
     }
+
     public void saveUserPortfolios() {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter("portfolios.csv"))) {
             for (Map.Entry<String, Map<String, Integer>> userEntry : userPortfolios.entrySet()) {
@@ -46,6 +52,4 @@ public class PortfolioController {
             e.printStackTrace();
         }
     }
-
-    // Weitere Methoden zum Hinzufügen/Entfernen von Aktien im Portfolio
 }
