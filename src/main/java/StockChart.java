@@ -4,7 +4,6 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.data.category.DefaultCategoryDataset;
 import javax.swing.*;
 import java.util.List;
-import java.util.Map;
 
 public class StockChart {
     public static void displayStockChart(String symbol, List<Double> priceData) {

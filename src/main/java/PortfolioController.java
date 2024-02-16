@@ -2,7 +2,7 @@ import java.io.*;
 import java.util.*;
 
 public class PortfolioController {
-    private Map<String, Map<String, Integer>> userPortfolios = new HashMap<>();
+    private final Map<String, Map<String, Integer>> userPortfolios = new HashMap<>();
 
     public PortfolioController() {
         loadUserPortfolios();

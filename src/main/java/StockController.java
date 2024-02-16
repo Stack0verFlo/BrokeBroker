@@ -1,9 +1,9 @@
 import java.util.*;
 
 public class StockController {
-    private List<String> availableStocks;
-    private Map<String, Double> currentPrices;
-    private Map<String, List<Double>> historicalPrices;
+    private final List<String> availableStocks;
+    private final Map<String, Double> currentPrices;
+    private final Map<String, List<Double>> historicalPrices;
 
     public StockController() {
         this.availableStocks = Arrays.asList("AAPL", "MSFT", "GOOGL", "AMZN", "TSLA", "FB", "BRK.A", "V",

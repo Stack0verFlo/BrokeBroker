@@ -7,14 +7,12 @@ import java.util.Objects;
 
 public class MainApp {
     private JFrame frame;
-    private String loggedInUser;
-    private PortfolioController portfolioController;
-    private StockController stockController;
-    private JTable portfolioTable;
+    private final String loggedInUser;
+    private final PortfolioController portfolioController;
+    private final StockController stockController;
     private DefaultTableModel portfolioTableModel;
     private JComboBox<String> stockList;
     private JTextField quantityField;
-    private JButton showChartButton;
 
     public MainApp(String loggedInUser) {
         this.loggedInUser = loggedInUser;
@@ -39,7 +37,7 @@ public class MainApp {
     private void initializePortfolioTable() {
         String[] columnNames = {"Aktie", "Anzahl"};
         portfolioTableModel = new DefaultTableModel(null, columnNames);
-        portfolioTable = new JTable(portfolioTableModel);
+        JTable portfolioTable = new JTable(portfolioTableModel);
         JScrollPane scrollPane = new JScrollPane(portfolioTable);
         frame.add(scrollPane, BorderLayout.CENTER);
         updatePortfolioTable();
@@ -70,7 +68,7 @@ public class MainApp {
     }
 
     private void showAboutDialog() {
-        JOptionPane.showMessageDialog(frame, "BrokeBroker\nVersion 1.0", "Über", JOptionPane.INFORMATION_MESSAGE);
+        JOptionPane.showMessageDialog(frame, "BrokeBroker\nVersion 1.0\nFlo hat nen kleinen", "Über", JOptionPane.INFORMATION_MESSAGE);
     }
 
 
@@ -101,6 +99,7 @@ public class MainApp {
         int quantity;
         try {
             quantity = Integer.parseInt(quantityField.getText());
+            assert selectedStock != null;
             portfolioController.buyStock(loggedInUser, selectedStock, quantity);
             updatePortfolioTable();
         } catch (NumberFormatException ex) {
@@ -110,7 +109,7 @@ public class MainApp {
 
 
     private void addChartButton() {
-        showChartButton = new JButton("Chart anzeigen");
+        JButton showChartButton = new JButton("Chart anzeigen");
         showChartButton.addActionListener(e -> showSelectedStockChart());
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         panel.add(showChartButton);
@@ -136,7 +135,7 @@ public class MainApp {
 
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new LoginController());
+        SwingUtilities.invokeLater(LoginController::new);
     }
 }
 

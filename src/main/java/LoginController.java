@@ -8,12 +8,10 @@ import java.util.Map;
 
 public class LoginController {
 
-    private JFrame frame;
+    private final JFrame frame;
     private JTextField usernameField;
     private JPasswordField passwordField;
-    private JButton loginButton;
-    private JButton registerButton;
-    private Map<String, String> userCredentials = new HashMap<>();
+    private final Map<String, String> userCredentials = new HashMap<>();
     private static final String USER_CREDENTIALS_FILE = "userCredentials.csv";
 
     public LoginController() {
@@ -47,21 +45,11 @@ public class LoginController {
         JLabel passwordLabel = new JLabel("Passwort:");
         passwordField = new JPasswordField(15);
 
-        loginButton = new JButton("Einloggen");
-        loginButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                performLogin();
-            }
-        });
+        JButton loginButton = new JButton("Einloggen");
+        loginButton.addActionListener(e -> performLogin());
 
-        registerButton = new JButton("Registrieren");
-        registerButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                registerUser();
-            }
-        });
+        JButton registerButton = new JButton("Registrieren");
+        registerButton.addActionListener(e -> registerUser());
 
         // Komponenten zentrieren
         usernameLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -136,18 +124,4 @@ public class LoginController {
             JOptionPane.showMessageDialog(frame, "Anmeldefehler: Ungültige Anmeldedaten!", "Fehler", JOptionPane.ERROR_MESSAGE);
         }
     }
-
-    public interface LoginSuccessListener {
-        void onLoginSuccess();
-    }
-
-    //public void setLoginSuccessListener(LoginSuccessListener listener) {
-    //    this.loginSuccessListener = listener;
-    //}
-
-    // ... Restliche Methoden wie registerUser, isValidInput, saveUserCredentials,
-    // loadUserCredentials, authenticateUser, performLogin ...
-
-    // Main-Methode zum Starten des Login-Fensters
-
 }
