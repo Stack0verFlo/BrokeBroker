@@ -1,2 +1,7 @@
-package Logging;public enum LogLevel {
+package Logging;
+
+public enum LogLevel {
+    INFO,
+    DEBUG,
+    ERROR
 }

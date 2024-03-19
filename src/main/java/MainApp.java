@@ -58,11 +58,18 @@ public class MainApp {
 
         JMenu helpMenu = new JMenu("Hilfe");
         JMenuItem aboutItem = new JMenuItem("Über");
+        JMenuItem logoutButton = new JMenuItem("Abmelden");
+        logoutButton.addActionListener(e -> {
+            frame.dispose();
+            LoginController loginController = new LoginController();
+        });
         aboutItem.addActionListener(e -> showAboutDialog());
         helpMenu.add(aboutItem);
+        fileMenu.add(logoutButton);
 
         menuBar.add(fileMenu);
         menuBar.add(helpMenu);
+
 
         frame.setJMenuBar(menuBar);
     }
@@ -106,6 +113,8 @@ public class MainApp {
             JOptionPane.showMessageDialog(frame, "Bitte geben Sie eine gültige Zahl ein.");
         }
     }
+
+    //hier fehlt die verkaufen Funktion
 
 
     private void addChartButton() {
