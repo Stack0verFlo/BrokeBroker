@@ -108,9 +108,14 @@ public class MainApp {
         int quantity;
         try {
             quantity = Integer.parseInt(quantityField.getText());
-            assert selectedStock != null;
-            portfolioController.buyStock(loggedInUser, selectedStock, quantity);
-            updatePortfolioTable();
+            if (quantity <= 0) {
+                //throw new IllegalArgumentException("Die Menge muss größer als 0 sein.");
+                JOptionPane.showMessageDialog(frame, "Die Menge muss größer als 0 sein.");
+            }else {
+                assert selectedStock != null;
+                portfolioController.buyStock(loggedInUser, selectedStock, quantity);
+                updatePortfolioTable();
+            }
         } catch (NumberFormatException ex) {
             JOptionPane.showMessageDialog(frame, "Bitte geben Sie eine gültige Zahl ein.");
         }
@@ -121,9 +126,14 @@ public class MainApp {
         int quantity;
         try {
             quantity = Integer.parseInt(quantityField.getText());
-            assert selectedStock != null;
-            portfolioController.sellStock(loggedInUser, selectedStock, quantity);
-            updatePortfolioTable();
+            if (quantity <= 0) {
+                //throw new IllegalArgumentException("Die Menge muss größer als 0 sein.");
+                JOptionPane.showMessageDialog(frame, "Die Menge muss größer als 0 sein.");
+            }else{
+                assert selectedStock != null;
+                portfolioController.sellStock(loggedInUser, selectedStock, quantity);
+                updatePortfolioTable();
+            }
         } catch (NumberFormatException ex) {
             JOptionPane.showMessageDialog(frame, "Bitte geben Sie eine gültige Zahl ein.");
         } catch (IllegalArgumentException ex) {
