@@ -8,15 +8,14 @@ import com.mongodb.client.MongoDatabase;
 
 public class Database {
     public static void main(String[] args) {
-        String uri = "mongodb://127.0.0.1:27017";
+        String uri = "mongodb://root:example@127.0.0.1:27018";
         try (MongoClient mongoClient = MongoClients.create(uri)) {
-            MongoDatabase database = mongoClient.getDatabase("admin");
-            MongoCollection<Document> collection = database.getCollection("system.version");
-            Document doc = collection.find(eq("_id", "featureCompatibilityVersion")).first();
+            MongoDatabase database = mongoClient.getDatabase("BrokeBroker");
+            MongoCollection<Document> collection = database.getCollection("User");
+            collection.insertOne(new Document("name", "TestUser").append("password", "TestPassword"));
+            Document doc = collection.find(eq("name", "TestUser")).first();
             if (doc != null) {
                 System.out.println(doc.toJson());
-            } else {
-                System.out.println("No matching documents found.");
             }
         }
     }
