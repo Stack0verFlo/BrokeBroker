@@ -41,6 +41,21 @@ public class PortfolioController {
         saveUserPortfolios();
     }
 
+    public void sellStock(String username, String stockSymbol, int quantity) {
+        String cleanStockSymbol = stockSymbol.split(" - ")[0];
+        Map<String, Integer> portfolio = userPortfolios.get(username);
+        if (portfolio != null) {
+            int currentQuantity = portfolio.getOrDefault(cleanStockSymbol, 0);
+            if (currentQuantity >= quantity) {
+                portfolio.put(cleanStockSymbol, currentQuantity - quantity);
+                saveUserPortfolios();
+            } else {
+                throw new IllegalArgumentException("Verkaufsfehler: Sie können nicht mehr Aktien verkaufen, als Sie besitzen.");
+            }
+        }
+    }
+
+
     public void saveUserPortfolios() {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter("portfolios.csv"))) {
             for (Map.Entry<String, Map<String, Integer>> userEntry : userPortfolios.entrySet()) {
