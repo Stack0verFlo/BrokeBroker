@@ -9,10 +9,6 @@ import java.nio.file.Paths;
 
 public class FileLogger implements Logger {
     private final String logFilePath = "log.txt";
-
-
-
-
     @Override
     public void log(String message, LogLevel level) {
         createLogFile();
