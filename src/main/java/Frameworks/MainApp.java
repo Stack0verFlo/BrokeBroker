@@ -1,9 +1,14 @@
+package Frameworks;
+
+import InterfaceAdapter.LoginController;
+import UseCases.PortfolioController;
+import UseCases.StockController;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.List;
-import java.util.Objects;
 
 public class MainApp {
     private JFrame frame;

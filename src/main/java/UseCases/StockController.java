@@ -1,3 +1,5 @@
+package UseCases;
+
 import java.util.*;
 
 public class StockController {

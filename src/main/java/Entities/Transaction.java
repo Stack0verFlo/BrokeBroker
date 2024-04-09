@@ -1,3 +1,5 @@
+package Entities;
+
 public class Transaction {
     private int balance = 5000;
 

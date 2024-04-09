@@ -1,7 +1,9 @@
+package InterfaceAdapter;
+
+import Frameworks.MainApp;
+
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
@@ -119,7 +121,7 @@ public class LoginController {
         String password = new String(passwordField.getPassword());
         if (authenticateUser(username, password)) {
             frame.dispose(); // Schließt das Login-Fenster
-            new MainApp(username); // Startet die MainApp mit dem Benutzernamen
+            new MainApp(username); // Startet die Frameworks.MainApp mit dem Benutzernamen
         } else {
             JOptionPane.showMessageDialog(frame, "Anmeldefehler: Ungültige Anmeldedaten!", "Fehler", JOptionPane.ERROR_MESSAGE);
         }
