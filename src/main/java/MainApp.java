@@ -90,12 +90,14 @@ public class MainApp {
 
         JButton buyButton = new JButton("Kaufen");
         buyButton.addActionListener(this::buyStock);
+        JButton sellButton = new JButton("Verkaufen");
+        sellButton.addActionListener(this::sellStock);
         stockMarketPanel.add(new JLabel("Aktie:"));
         stockMarketPanel.add(stockList);
         stockMarketPanel.add(new JLabel("Menge:"));
         stockMarketPanel.add(quantityField);
         stockMarketPanel.add(buyButton);
-
+        stockMarketPanel.add(sellButton);
         addChartButton();
 
         frame.add(stockMarketPanel, BorderLayout.SOUTH);
@@ -106,15 +108,39 @@ public class MainApp {
         int quantity;
         try {
             quantity = Integer.parseInt(quantityField.getText());
-            assert selectedStock != null;
-            portfolioController.buyStock(loggedInUser, selectedStock, quantity);
-            updatePortfolioTable();
+            if (quantity <= 0) {
+                //throw new IllegalArgumentException("Die Menge muss größer als 0 sein.");
+                JOptionPane.showMessageDialog(frame, "Die Menge muss größer als 0 sein.");
+            }else {
+                assert selectedStock != null;
+                portfolioController.buyStock(loggedInUser, selectedStock, quantity);
+                updatePortfolioTable();
+            }
         } catch (NumberFormatException ex) {
             JOptionPane.showMessageDialog(frame, "Bitte geben Sie eine gültige Zahl ein.");
         }
     }
 
-    //hier fehlt die verkaufen Funktion
+    private void sellStock(ActionEvent e) {
+        String selectedStock = (String) stockList.getSelectedItem();
+        int quantity;
+        try {
+            quantity = Integer.parseInt(quantityField.getText());
+            if (quantity <= 0) {
+                //throw new IllegalArgumentException("Die Menge muss größer als 0 sein.");
+                JOptionPane.showMessageDialog(frame, "Die Menge muss größer als 0 sein.");
+            }else{
+                assert selectedStock != null;
+                portfolioController.sellStock(loggedInUser, selectedStock, quantity);
+                updatePortfolioTable();
+            }
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(frame, "Bitte geben Sie eine gültige Zahl ein.");
+        } catch (IllegalArgumentException ex) {
+            JOptionPane.showMessageDialog(frame, ex.getMessage());
+        }
+    }
+
 
 
     private void addChartButton() {
