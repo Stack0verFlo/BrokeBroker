@@ -1,14 +1,17 @@
 package Frameworks;
 
-import InterfaceAdapter.LoginController;
+import Entities.Stock;
+import Frameworks.StockChart;
 import UseCases.PortfolioController;
 import UseCases.StockController;
+import InterfaceAdapter.LoginController;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class MainApp {
     private JFrame frame;
@@ -53,6 +56,7 @@ public class MainApp {
         String[] columnNames = {"Aktie", "Anzahl"};
         portfolioTableModel.setDataVector(portfolioData, columnNames);
     }
+
     private void initializeMenuBar() {
         JMenuBar menuBar = new JMenuBar();
 
@@ -66,7 +70,7 @@ public class MainApp {
         JMenuItem logoutButton = new JMenuItem("Abmelden");
         logoutButton.addActionListener(e -> {
             frame.dispose();
-            LoginController loginController = new LoginController();
+            new LoginController();
         });
         aboutItem.addActionListener(e -> showAboutDialog());
         helpMenu.add(aboutItem);
@@ -75,7 +79,6 @@ public class MainApp {
         menuBar.add(fileMenu);
         menuBar.add(helpMenu);
 
-
         frame.setJMenuBar(menuBar);
     }
 
@@ -83,11 +86,11 @@ public class MainApp {
         JOptionPane.showMessageDialog(frame, "BrokeBroker\nVersion 1.0\nFlo hat nen kleinen", "Über", JOptionPane.INFORMATION_MESSAGE);
     }
 
-
     private void showStockMarket() {
         JPanel stockMarketPanel = new JPanel();
         stockList = new JComboBox<>();
-        stockController.getAvailableStocks().forEach(stock -> {
+        List<String> stocks = stockController.getAvailableStocks();
+        stocks.forEach(stock -> {
             double price = stockController.getCurrentPrice(stock); // Holen des aktuellen Preises
             stockList.addItem(stock + " - " + String.format("%.2f€", price));
         });
@@ -97,6 +100,7 @@ public class MainApp {
         buyButton.addActionListener(this::buyStock);
         JButton sellButton = new JButton("Verkaufen");
         sellButton.addActionListener(this::sellStock);
+
         stockMarketPanel.add(new JLabel("Aktie:"));
         stockMarketPanel.add(stockList);
         stockMarketPanel.add(new JLabel("Menge:"));
@@ -146,8 +150,6 @@ public class MainApp {
         }
     }
 
-
-
     private void addChartButton() {
         JButton showChartButton = new JButton("Chart anzeigen");
         showChartButton.addActionListener(e -> showSelectedStockChart());
@@ -160,22 +162,12 @@ public class MainApp {
         String selectedSymbol = (String) stockList.getSelectedItem();
         if (selectedSymbol != null) {
             selectedSymbol = selectedSymbol.split(" - ")[0];
-            List<Double> priceData = stockController.getHistoricalPrices(selectedSymbol);
-
-            // Annahme, dass getCurrentPrice den aktuellen Preis liefert
-            double currentPrice = stockController.getCurrentPrice(selectedSymbol);
-
-            // Hinzufügen des aktuellen Preises als letzten Eintrag in die Liste
-            priceData.add(currentPrice);
-
-            StockChart.displayStockChart(selectedSymbol, priceData);
+            Stock stock = stockController.getStock(selectedSymbol); // Angepasst an die neue Methode
+            StockChart.displayStockChart(stock);
         }
     }
 
-
-
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(LoginController::new);
+        SwingUtilities.invokeLater(() -> new LoginController());
     }
 }
-

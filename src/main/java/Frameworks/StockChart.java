@@ -1,23 +1,25 @@
 package Frameworks;
 
+import Entities.Stock;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.data.category.DefaultCategoryDataset;
+
 import javax.swing.*;
 import java.util.List;
 
 public class StockChart {
-    public static void displayStockChart(String symbol, List<Double> priceData) {
+    public static void displayStockChart(Stock stock) {
         DefaultCategoryDataset dataset = new DefaultCategoryDataset();
 
-        // Hinzufügen jedes Preiswertes mit einem Index als Kategorie
+        List<Double> priceData = stock.getHistoricalPrices();
         for (int i = 0; i < priceData.size(); i++) {
-            dataset.addValue(priceData.get(i), "Preis", String.valueOf(i + 1)); // Nutzen von i+1 für die Darstellung, beginnend mit 1
+            dataset.addValue(priceData.get(i), "Preis", String.valueOf(i + 1));
         }
 
         JFreeChart chart = ChartFactory.createLineChart(
-                symbol + " Preisentwicklung",
+                stock.getName() + " Preisentwicklung",
                 "Zeitpunkt",
                 "Preis",
                 dataset
@@ -32,4 +34,3 @@ public class StockChart {
         frame.setVisible(true);
     }
 }
-

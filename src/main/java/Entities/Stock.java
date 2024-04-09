@@ -12,11 +12,9 @@ public class Stock {
         this.name = name;
         this.currentPrice = currentPrice;
         this.historicalPrices = new ArrayList<>();
-        // Der aktuelle Preis wird auch als erster historischer Preis hinzugefügt
-        this.historicalPrices.add(currentPrice);
+        this.historicalPrices.add(currentPrice); // Der aktuelle Preis wird auch als erster historischer Preis hinzugefügt
     }
 
-    // Getter und Setter
     public String getName() {
         return name;
     }
@@ -27,15 +25,13 @@ public class Stock {
 
     public void setCurrentPrice(double currentPrice) {
         this.currentPrice = currentPrice;
-        // Wenn sich der Preis ändert, fügen wir ihn zur Historie hinzu
-        this.historicalPrices.add(currentPrice);
+        this.historicalPrices.add(currentPrice); // Wenn sich der Preis ändert, fügen wir ihn zur Historie hinzu
     }
 
     public List<Double> getHistoricalPrices() {
         return historicalPrices;
     }
 
-    // Methode zum Hinzufügen historischer Preise
     public void addHistoricalPrice(double price) {
         historicalPrices.add(price);
     }
