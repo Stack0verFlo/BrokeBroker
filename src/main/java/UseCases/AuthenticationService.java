@@ -1,51 +1,38 @@
 package UseCases;
 
-import java.io.*;
-import java.util.HashMap;
-import java.util.Map;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
+import org.bson.Document;
 
 public class AuthenticationService {
-    private static final String USER_CREDENTIALS_FILE = "userCredentials.csv";
-    private Map<String, String> userCredentials = new HashMap<>();
+    private MongoClient mongoClient;
+    private MongoDatabase database;
+    private MongoCollection<Document> userCollection;
 
     public AuthenticationService() {
-        loadUserCredentials();
+        initializeDatabase();
     }
 
-    private void loadUserCredentials() {
-        File file = new File(USER_CREDENTIALS_FILE);
-        if (file.exists()) {
-            try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    String[] credentials = line.split(",");
-                    if (credentials.length == 2) {
-                        userCredentials.put(credentials[0], credentials[1]);
-                    }
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+    private void initializeDatabase() {
+        String uri = "mongodb://root:example@127.0.0.1:27018";
+        mongoClient = MongoClients.create(uri);
+        database = mongoClient.getDatabase("BrokeBroker");
+        userCollection = database.getCollection("User");
     }
 
     public boolean authenticateUser(String username, String password) {
-        String storedPassword = userCredentials.get(username);
-        return storedPassword != null && storedPassword.equals(password);
+        Document user = userCollection.find(new Document("username", username)).first();
+        return user != null && user.getString("password").equals(password);
     }
 
     public void registerUser(String username, String password) {
-        if (!userCredentials.containsKey(username)) {
-            userCredentials.put(username, password);
-            saveUserCredentials(username, password);
-        }
-    }
-
-    private void saveUserCredentials(String username, String password) {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(USER_CREDENTIALS_FILE, true))) {
-            writer.write(username + "," + password + "\n");
-        } catch (IOException e) {
-            e.printStackTrace();
+        Document existingUser = userCollection.find(new Document("username", username)).first();
+        if (existingUser == null) {
+            Document newUser = new Document("username", username)
+                    .append("password", password); // Passwörter sollten gehasht werden
+            userCollection.insertOne(newUser);
         }
     }
 }
