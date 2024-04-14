@@ -1,5 +1,6 @@
 package UseCases;
 
+import Frameworks.DatabaseManager;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
@@ -14,13 +15,7 @@ public class AuthenticationService {
     private MongoCollection<Document> portfolioCollection;
 
     public AuthenticationService() {
-        initializeDatabase();
-    }
-
-    private void initializeDatabase() {
-        String uri = "mongodb://root:example@127.0.0.1:27018";
-        mongoClient = MongoClients.create(uri);
-        database = mongoClient.getDatabase("BrokeBroker");
+        MongoDatabase database = DatabaseManager.getInstance().getDatabase();
         userCollection = database.getCollection("User");
         portfolioCollection = database.getCollection("Portfolio");
     }
@@ -48,7 +43,7 @@ public class AuthenticationService {
                 .append("password", password);
         userCollection.insertOne(newUser);
     }
-
+    //test
     private void createPortfolioForUser(String username) {
         Document user = userCollection.find(new Document("username", username)).first();
         if (user != null) {
