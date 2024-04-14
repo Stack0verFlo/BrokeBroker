@@ -13,7 +13,7 @@ public class StockChart {
     public static void displayStockChart(Stock stock) {
         DefaultCategoryDataset dataset = new DefaultCategoryDataset();
 
-        List<Double> priceData = stock.getHistoricalPrices();
+        List<Integer> priceData = stock.getHistoricalPrices();
         for (int i = 0; i < priceData.size(); i++) {
             dataset.addValue(priceData.get(i), "Preis", String.valueOf(i + 1));
         }

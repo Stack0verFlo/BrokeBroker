@@ -1,47 +1,71 @@
 package UseCases;
 
 import Entities.Stock;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
+import org.bson.Document;
+import org.bson.types.ObjectId;
 
 import java.util.*;
 
 public class StockController {
     private final List<String> availableStocks;
-    private final Map<String, Double> currentPrices;
-    private final Map<String, List<Double>> historicalPrices;
     private final Map<String, Stock> stocks = new HashMap<>();
+    private MongoCollection<Document> stocksCollection;
 
     public StockController() {
         this.availableStocks = Arrays.asList("AAPL", "MSFT", "GOOGL", "AMZN", "TSLA", "FB", "BRK.A", "V",
                 "JNJ", "WMT", "JPM", "MA", "PG", "UNH", "DIS", "NVDIA", "HD",
                 "PYPL", "BAC", "VZ", "SAP"); // Beispielaktien
-        this.currentPrices = new HashMap<>();
-        this.historicalPrices = new HashMap<>();
+        initializeDatabase();
         initializePrices();
+    }
+
+    private void initializeDatabase() {
+        String uri = "mongodb://root:example@127.0.0.1:27018";
+        MongoClient mongoClient = MongoClients.create(uri);
+        MongoDatabase database = mongoClient.getDatabase("BrokeBroker");
+        this.stocksCollection = database.getCollection("Stocks");
     }
 
     private void initializePrices() {
         Random random = new Random();
         for (String stockSymbol : availableStocks) {
-            double currentPrice = 100 + (random.nextDouble() *900); // Zwischen 100 und 1000
-            List<Double> prices = new ArrayList<>();
+            int currentPrice = 100 + random.nextInt(900); // Zwischen 100 und 1000
+            List<Integer> prices = new ArrayList<>();
             prices.add(currentPrice); // Aktuellen Preis als ersten Eintrag hinzufügen
             for (int i = 1; i < 30; i++) { // Letzte 30 Tage
-                prices.add(currentPrice + (random.nextDouble() * 20 - 10)); // Kleine Schwankungen
+                prices.add(currentPrice + random.nextInt(20) - 10); // Kleine Schwankungen
             }
 
             Stock stock = new Stock(stockSymbol, currentPrice);
             stock.getHistoricalPrices().addAll(prices); // Fügen die generierten historischen Preise hinzu
             stocks.put(stockSymbol, stock);
-            //historicalPrices.put(stock, prices);
+
+            // Aktualisiere die Daten in MongoDB
+            Document stockDoc = new Document("symbol", stockSymbol)
+                    .append("currentPrice", currentPrice)
+                    .append("historicalPrices", prices);
+            stocksCollection.findOneAndReplace(new Document("symbol", stockSymbol), stockDoc);
         }
     }
 
-    public double getCurrentPrice(String stock) {
-        return currentPrices.getOrDefault(stock, 0.0);
+    public int getCurrentPrice(String stockSymbol) {
+        Document stockDoc = stocksCollection.find(new Document("symbol", stockSymbol)).first();
+        if (stockDoc != null) {
+            return stockDoc.getInteger("currentPrice");
+        }
+        return 0;
     }
 
-    public List<Double> getHistoricalPrices(String stock) {
-        return historicalPrices.getOrDefault(stock, new ArrayList<>());
+    public List<Integer> getHistoricalPrices(String stockSymbol) {
+        Document stockDoc = stocksCollection.find(new Document("symbol", stockSymbol)).first();
+        if (stockDoc != null) {
+            return (List<Integer>) stockDoc.get("historicalPrices");
+        }
+        return new ArrayList<>();
     }
 
     public List<String> getAvailableStocks() {
