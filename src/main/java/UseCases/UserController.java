@@ -19,9 +19,9 @@ public class UserController {
         this.collection = database.getCollection("Users"); // Stelle sicher, dass es "Users" ist
     }
 
-    public User createUser(User user) {
-        Document userDoc = new Document("name", user.getName())
-                .append("email", user.getEmail())
+    public User createUser(String username, String password) {
+        User user = new User(username, null, password);
+        Document userDoc = new Document("username", user.getName())
                 .append("password", user.getPassword()); // Beachte: Passwort sollte gehasht sein
         collection.insertOne(userDoc);
 
