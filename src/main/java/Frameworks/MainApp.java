@@ -12,8 +12,6 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.List;
 
-import java.util.stream.Collectors;
-
 public class MainApp {
     private JFrame frame;
     private ValueGui valueGui;
@@ -45,12 +43,13 @@ public class MainApp {
 
         // Initialize ValueGui und füge es hinzu
         valueGui = new ValueGui();  // Keine Argumente, da keine anfängliche Balance vorhanden
-        frame.add(valueGui, BorderLayout.NORTH); // Füge das Balance-Panel oben hinzu
+        JPanel northPanel = new JPanel(new BorderLayout());
+        northPanel.add(valueGui, BorderLayout.NORTH);  // Füge das Balance-Panel oben hinzu
+        addChartButton(northPanel);  // Fügt den Chart-Button zum northPanel hinzu
 
+        frame.add(northPanel, BorderLayout.NORTH); // Füge das komplette northPanel zum Rahmen hinzu
         frame.setVisible(true);
     }
-
-
 
     private void initializePortfolioTable() {
         String[] columnNames = {"Aktie", "Anzahl"};
@@ -117,9 +116,14 @@ public class MainApp {
         stockMarketPanel.add(quantityField);
         stockMarketPanel.add(buyButton);
         stockMarketPanel.add(sellButton);
-        addChartButton();
 
         frame.add(stockMarketPanel, BorderLayout.SOUTH);
+    }
+
+    private void addChartButton(JPanel panel) {
+        JButton showChartButton = new JButton("Chart anzeigen");
+        showChartButton.addActionListener(e -> showSelectedStockChart());
+        panel.add(showChartButton, BorderLayout.CENTER);
     }
 
     private void buyStock(ActionEvent e) {
@@ -128,9 +132,8 @@ public class MainApp {
         try {
             quantity = Integer.parseInt(quantityField.getText());
             if (quantity <= 0) {
-                //throw new IllegalArgumentException("Die Menge muss größer als 0 sein.");
                 JOptionPane.showMessageDialog(frame, "Die Menge muss größer als 0 sein.");
-            }else {
+            } else {
                 assert selectedStock != null;
                 portfolioController.buyStock(loggedInUser, selectedStock, quantity);
                 updatePortfolioTable();
@@ -160,19 +163,11 @@ public class MainApp {
         }
     }
 
-    private void addChartButton() {
-        JButton showChartButton = new JButton("Chart anzeigen");
-        showChartButton.addActionListener(e -> showSelectedStockChart());
-        JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        panel.add(showChartButton);
-        frame.add(panel, BorderLayout.NORTH); // Verbesserte Positionierung
-    }
-
     private void showSelectedStockChart() {
         String selectedSymbol = (String) stockList.getSelectedItem();
         if (selectedSymbol != null) {
             selectedSymbol = selectedSymbol.split(" - ")[0];
-            Stock stock = stockController.getStock(selectedSymbol); // Angepasst an die neue Methode
+            Stock stock = stockController.getStock(selectedSymbol); // Holen des Stock-Objekts
             StockChart.displayStockChart(stock);
         }
     }

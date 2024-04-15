@@ -6,7 +6,6 @@ import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
-import org.bson.types.ObjectId;
 
 import java.util.*;
 
@@ -14,7 +13,6 @@ public class StockController {
     private final List<String> availableStocks;
     private final Map<String, Stock> stocks = new HashMap<>();
     private MongoCollection<Document> stocksCollection;
-    private Stock stock;
 
     public StockController() {
         this.availableStocks = Arrays.asList("AAPL", "MSFT", "GOOGL", "AMZN", "TSLA", "FB", "BRK.A", "V",
@@ -35,23 +33,30 @@ public class StockController {
         Random random = new Random();
         for (String stockSymbol : availableStocks) {
             int currentPrice = getCurrentPrice(stockSymbol) + random.nextInt(71) - 35; // Jetzt von -50 bis +50
-            List<Integer> prices = new ArrayList<>();
-            prices.add(currentPrice); // Aktuellen Preis als ersten Eintrag hinzufügen
-            for (int i = 1; i < 30; i++) { // Letzte 30 Tage
-                prices.add(currentPrice + random.nextInt(21) - 10); // Kleine Schwankungen von -10 bis +10
+
+            Document stockDoc = stocksCollection.find(new Document("symbol", stockSymbol)).first();
+            List<Integer> historicalPrices = new ArrayList<>();
+
+            if (stockDoc != null && stockDoc.containsKey("historicalPrices")) {
+                historicalPrices = stockDoc.getList("historicalPrices", Integer.class);
             }
 
-            Stock stock = new Stock(stockSymbol, currentPrice);
-            stock.getHistoricalPrices().addAll(prices); // Fügen die generierten historischen Preise hinzu
-            stocks.put(stockSymbol, stock);
+            if (historicalPrices.size() >= 30) {
+                historicalPrices.remove(0);
+            }
+            historicalPrices.add(currentPrice);
 
-            // Aktualisiere die Daten in MongoDB
-            Document stockDoc = new Document("symbol", stockSymbol)
+            stockDoc = new Document("symbol", stockSymbol)
                     .append("currentPrice", currentPrice)
-                    .append("historicalPrices", prices);
+                    .append("historicalPrices", historicalPrices);
             stocksCollection.findOneAndReplace(new Document("symbol", stockSymbol), stockDoc);
+
+            Stock stock = new Stock(stockSymbol, currentPrice);
+            stock.getHistoricalPrices().addAll(historicalPrices);
+            stocks.put(stockSymbol, stock);
         }
     }
+
 
     public int getCurrentPrice(String stockSymbol) {
         Document stockDoc = stocksCollection.find(new Document("symbol", stockSymbol)).first();
