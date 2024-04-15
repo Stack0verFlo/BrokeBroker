@@ -14,6 +14,7 @@ public class StockController {
     private final List<String> availableStocks;
     private final Map<String, Stock> stocks = new HashMap<>();
     private MongoCollection<Document> stocksCollection;
+    private Stock stock;
 
     public StockController() {
         this.availableStocks = Arrays.asList("AAPL", "MSFT", "GOOGL", "AMZN", "TSLA", "FB", "BRK.A", "V",
@@ -33,11 +34,11 @@ public class StockController {
     private void initializePrices() {
         Random random = new Random();
         for (String stockSymbol : availableStocks) {
-            int currentPrice = 100 + random.nextInt(900); // Zwischen 100 und 1000
+            int currentPrice = getCurrentPrice(stockSymbol) + random.nextInt(71) - 35; // Jetzt von -50 bis +50
             List<Integer> prices = new ArrayList<>();
             prices.add(currentPrice); // Aktuellen Preis als ersten Eintrag hinzufügen
             for (int i = 1; i < 30; i++) { // Letzte 30 Tage
-                prices.add(currentPrice + random.nextInt(20) - 10); // Kleine Schwankungen
+                prices.add(currentPrice + random.nextInt(21) - 10); // Kleine Schwankungen von -10 bis +10
             }
 
             Stock stock = new Stock(stockSymbol, currentPrice);

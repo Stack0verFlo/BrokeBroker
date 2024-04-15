@@ -11,10 +11,13 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.List;
+
 import java.util.stream.Collectors;
 
 public class MainApp {
     private JFrame frame;
+    private ValueGui valueGui;
+
     private final String loggedInUser;
     private final PortfolioController portfolioController;
     private final StockController stockController;
@@ -39,8 +42,15 @@ public class MainApp {
         initializeMenuBar();
         initializePortfolioTable();
         showStockMarket();
+
+        // Initialize ValueGui und füge es hinzu
+        valueGui = new ValueGui();  // Keine Argumente, da keine anfängliche Balance vorhanden
+        frame.add(valueGui, BorderLayout.NORTH); // Füge das Balance-Panel oben hinzu
+
         frame.setVisible(true);
     }
+
+
 
     private void initializePortfolioTable() {
         String[] columnNames = {"Aktie", "Anzahl"};
