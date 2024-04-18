@@ -2,6 +2,7 @@ package gui;
 
 import controllers.StockController;
 import Entities.Stock;
+import services.StockService;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -13,11 +14,11 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 
+
 public class StockPanel extends JPanel {
     private final StockController stockController;
-    private JTextField symbolTextField;
-    private JTextField priceTextField;
     private JButton updatePriceButton;
+    private JComboBox<String> symbolComboBox;
 
     public StockPanel() {
         this.stockController = new StockController();
@@ -27,20 +28,13 @@ public class StockPanel extends JPanel {
     }
 
     private JPanel createPriceUpdatePanel() {
-        JPanel panel = new JPanel();
-        panel.setLayout(new FlowLayout());
+        JPanel panel = new JPanel(new FlowLayout());
 
         JLabel symbolLabel = new JLabel("Symbol:");
         panel.add(symbolLabel);
 
-        symbolTextField = new JTextField(10);
-        panel.add(symbolTextField);
-
-        JLabel priceLabel = new JLabel("New Price:");
-        panel.add(priceLabel);
-
-        priceTextField = new JTextField(10);
-        panel.add(priceTextField);
+        symbolComboBox = new JComboBox<>(stockController.getAllSymbols());
+        panel.add(symbolComboBox);
 
         updatePriceButton = new JButton("Update Price");
         updatePriceButton.addActionListener(this::handleUpdatePriceAction);
@@ -50,15 +44,8 @@ public class StockPanel extends JPanel {
     }
 
     private void handleUpdatePriceAction(ActionEvent e) {
-        String symbol = symbolTextField.getText();
-        double price;
-        try {
-            price = Double.parseDouble(priceTextField.getText());
-        } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(this, "Please enter a valid price.", "Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-        stockController.updateStockPrice(symbol, price);
+        String symbol = (String) symbolComboBox.getSelectedItem();
+        //stockController.updateStockPrice(symbol, price);
         refreshChart(symbol);  // Refresh the chart with new data
     }
 

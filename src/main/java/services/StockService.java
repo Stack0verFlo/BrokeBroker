@@ -5,6 +5,9 @@ import config.MongoDBClient;
 import repositories.StockRepository;
 import repositoriesimpl.StockRepositoryImpl;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 public class StockService {
     private final StockRepository stockRepository;
 
@@ -32,6 +35,12 @@ public class StockService {
             Stock stock = new Stock(symbol, generateInitialPrice());
             stockRepository.save(stock);
         }
+    }
+
+    public List<String> getAllSymbols() {
+        return stockRepository.findAll().stream()
+                .map(Stock::getSymbol)
+                .collect(Collectors.toList());
     }
 
     private double generateInitialPrice() {
