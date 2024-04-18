@@ -28,7 +28,6 @@ public class StockRepositoryImpl implements StockRepository{
         Document doc = collection.find(eq("symbol", symbol)).first();
         if (doc != null) {
             return new Stock(doc.getString("symbol"), doc.getDouble("currentPrice"));
-
         }
         return null;
     }
