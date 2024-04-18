@@ -9,12 +9,15 @@ public class User {
     private String email;
     private String password; // Beachten Sie die Sicherheitshinweise unten
     // Annahme, dass jedes Portfolio eine eindeutige ID hat oder direkt als Objekt referenziert wird
+
+    private double balance; // Kontostand des Benutzers
     private List<String> portfolioIds; // Referenzen auf Portfolios, falls mehrere Portfolios unterstützt werden
 
-    public User(String name, String email, String password) {
+    public User(String name, String email, String password, double balance) {
         this.name = name;
         this.email = email;
         this.password = password;
+        this.balance = balance;
         this.portfolioIds = new ArrayList<>();
     }
 
@@ -57,6 +60,13 @@ public class User {
 
     public void setPortfolioIds(List<String> portfolioIds) {
         this.portfolioIds = portfolioIds;
+    }
+
+    public double getBalance() {
+        return balance;
+    }
+    public void setBalance(double balance) {
+        this.balance = balance;
     }
 
     // Methode zum Hinzufügen eines Portfolios zum Benutzer

@@ -7,6 +7,7 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
 import org.bson.types.ObjectId;
+import org.mindrot.jbcrypt.BCrypt;
 
 public class UserController {
     private MongoCollection<Document> collection;
@@ -19,15 +20,24 @@ public class UserController {
         this.collection = database.getCollection("Users"); // Stelle sicher, dass es "Users" ist
     }
 
-    public User createUser(String username, String password) {
-        User user = new User(username, null, password);
+    public User createUser(String username, String password, double initialBalance) {
+        String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
+        User user = new User(username, null, hashedPassword, initialBalance);
         Document userDoc = new Document("username", user.getName())
-                .append("password", user.getPassword()); // Beachte: Passwort sollte gehasht sein
-        collection.insertOne(userDoc);
+                .append("password", user.getPassword())
+                .append("balance", user.getBalance());
+        if(collection.insertOne(userDoc).wasAcknowledged()) {
+            user.setId(userDoc.get("_id").toString());
+            return user;
+        } else {
+            throw new RuntimeException("Failed to create user");
+        }
+    }
 
-        // Nach dem Einfügen hat das userDoc ein Feld _id, das von MongoDB generiert wurde
-        user.setId(userDoc.get("_id").toString()); // Setze die generierte ID im User-Objekt
-
-        return user;
+    public void updateUserBalance(String userId, double newBalance) {
+        Document update = new Document("$set", new Document("balance", newBalance));
+        if(!collection.updateOne(new Document("_id", new ObjectId(userId)), update).wasAcknowledged()) {
+            throw new RuntimeException("Failed to update user balance");
+        }
     }
 }

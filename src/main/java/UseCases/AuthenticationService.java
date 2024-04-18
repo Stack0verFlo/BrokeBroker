@@ -9,6 +9,7 @@ import com.mongodb.client.MongoDatabase;
 import UseCases.UserController;
 import org.bson.Document;
 import org.bson.types.ObjectId;
+import org.mindrot.jbcrypt.BCrypt;
 
 public class AuthenticationService {
     private MongoClient mongoClient;
@@ -26,13 +27,18 @@ public class AuthenticationService {
 
     public boolean authenticateUser(String username, String password) {
         Document user = userCollection.find(new Document("username", username)).first();
-        return user != null && user.getString("password").equals(password);
+        if (user != null) {
+            String storedPassword = user.getString("password");
+            return BCrypt.checkpw(password, storedPassword);
+        }
+        return false;
     }
 
     public void registerUser(String username, String password) {
         if (!userExists(username)) {
-            User newUser = userController.createUser(username, password);
+            User newUser = userController.createUser(username, password, 10000.0);
             createPortfolioForUser(newUser.getId(), username);
+
         }
     }
 
