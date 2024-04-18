@@ -1,6 +1,7 @@
 package Entities;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class Stock {
 
@@ -32,5 +33,8 @@ public class Stock {
 
     public void setCurrentPrice(double currentPrice) {
         this.currentPrice = currentPrice;
+    }
+    public void setHistoricalPrices(List<Double> historicalPrices) {
+        this.historicalPrices = new ArrayList<>(historicalPrices);
     }
 }

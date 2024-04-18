@@ -1,56 +1,40 @@
 package services;
 
 import Entities.Stock;
-import config.MongoDBClient;
 import repositories.StockRepository;
 import repositoriesimpl.StockRepositoryImpl;
+import config.MongoDBClient;
 
 import java.util.List;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 public class StockService {
     private final StockRepository stockRepository;
+    private final Random random;
 
     public StockService() {
         this.stockRepository = new StockRepositoryImpl(MongoDBClient.getDatabase());
-        initializeDatabase();
+        this.random = new Random();
+        this.initializeStocks();
     }
 
-    private void initializeDatabase() {
-        // Prüfen, ob die Collection existiert und leere Collection mit Beispieldaten anlegen
-        if (!collectionExists()) {
-            createSampleStocks();
+    private void initializeStocks() {
+        if (stockRepository.isEmpty()) {
+            String[] symbols = {"AAPL", "GOOGL", "MSFT", "AMZN", "FB", "TSLA", "NFLX", "INTC", "AMD", "NVDA"};
+            for (String symbol : symbols) {
+                double initialPrice = 100 + (random.nextDouble() * 100); // Preis zwischen 100 und 200
+                stockRepository.save(new Stock(symbol, initialPrice));
+            }
         }
     }
 
-    private boolean collectionExists() {
-        // Überprüfen, ob die Collection bereits existiert
-        return stockRepository.collectionExists();
-    }
-
-    private void createSampleStocks() {
-        // Erstellen von Beispielsaktien
-        String[] symbols = {"AAPL", "MSFT", "GOOGL", "AMZN", "FB", "TSLA", "BRK.A", "V", "JNJ", "WMT"};
-        for (String symbol : symbols) {
-            Stock stock = new Stock(symbol, generateInitialPrice());
-            stockRepository.save(stock);
-        }
-    }
-
-    public List<String> getAllSymbols() {
-        return stockRepository.findAll().stream()
-                .map(Stock::getSymbol)
-                .collect(Collectors.toList());
-    }
-
-    private double generateInitialPrice() {
-        // Zufälliger Initialpreis für eine Aktie
-        return Math.random() * 100 + 100; // Preise zwischen 100 und 200
-    }
-
-    public void updateStockPrice(String symbol, double newPrice) {
+    public void updateStockPrice(String symbol) {
         Stock stock = stockRepository.findBySymbol(symbol);
         if (stock != null) {
+            double currentPrice = stock.getCurrentPrice();
+            double newPrice = currentPrice + (random.nextGaussian() * 10); // Neuer Preis wird im Bereich von -10 bis +10 des aktuellen Preises generiert
+            stock.addHistoricalPrice(currentPrice);
             stock.setCurrentPrice(newPrice);
             stockRepository.save(stock);
         }
@@ -58,5 +42,12 @@ public class StockService {
 
     public Stock getStock(String symbol) {
         return stockRepository.findBySymbol(symbol);
+    }
+    public List<String> getAllSymbols() {
+        // Diese Methode sollte alle Aktiensymbole aus der Datenbank holen.
+        // Hier ein Beispielcode, der eine vordefinierte Liste zurückgibt:
+        return stockRepository.findAll().stream()
+                .map(Stock::getSymbol)
+                .collect(Collectors.toList());
     }
 }

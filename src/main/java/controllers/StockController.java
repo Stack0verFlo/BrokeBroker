@@ -12,15 +12,12 @@ public class StockController {
         this.stockService = new StockService();
     }
 
-    public void updateStockPrice(String symbol, double newPrice) {
-        stockService.updateStockPrice(symbol, newPrice);
+    public void updateStockPrice(String symbol) {
+        stockService.updateStockPrice(symbol);
     }
 
-    public String[] getAllSymbols() {
-        // Implementation to get all symbols from the stockService
-        // Could be something like this:
-        List<String> symbols = stockService.getAllSymbols();
-        return symbols.toArray(new String[0]);
+    public List<String> getAllSymbols() {
+        return stockService.getAllSymbols();
     }
 
     public Stock getStock(String symbol) {
