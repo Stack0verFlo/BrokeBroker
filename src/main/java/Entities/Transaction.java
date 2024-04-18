@@ -1,60 +1,39 @@
 package Entities;
 
-import java.time.LocalDateTime;
+import java.util.Date;
 
 public class Transaction {
-    private String userId; // Referenz auf den User
-    private String stockSymbol; // Das Aktiensymbol
-    private int quantity; // Anzahl der gekauften/verkauften Aktien
-    private double price; // Preis pro Aktie zum Zeitpunkt der Transaktion
-    private LocalDateTime timestamp; // Zeitpunkt der Transaktion
+    private String id;
+    private Stock stock;
+    private int quantity;
+    private String type; // "BUY" oder "SELL"
+    private Date transactionDate;
 
-    public Transaction(String userId, String stockSymbol, int quantity, double price, LocalDateTime timestamp) {
-        this.userId = userId;
-        this.stockSymbol = stockSymbol;
+    public Transaction(String id, Stock stock, int quantity, String type, Date transactionDate) {
+        this.id = id;
+        this.stock = stock;
         this.quantity = quantity;
-        this.price = price;
-        this.timestamp = timestamp;
+        this.type = type;
+        this.transactionDate = transactionDate;
     }
 
-    // Getter und Setter
-    public String getUserId() {
-        return userId;
+    public String getId() {
+        return id;
     }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
-    }
-
-    public String getStockSymbol() {
-        return stockSymbol;
-    }
-
-    public void setStockSymbol(String stockSymbol) {
-        this.stockSymbol = stockSymbol;
+    public Stock getStock() {
+        return stock;
     }
 
     public int getQuantity() {
         return quantity;
     }
 
-    public void setQuantity(int quantity) {
-        this.quantity = quantity;
+    public String getType() {
+        return type;
     }
 
-    public double getPrice() {
-        return price;
-    }
-
-    public void setPrice(double price) {
-        this.price = price;
-    }
-
-    public LocalDateTime getTimestamp() {
-        return timestamp;
-    }
-
-    public void setTimestamp(LocalDateTime timestamp) {
-        this.timestamp = timestamp;
+    public Date getTransactionDate() {
+        return transactionDate;
     }
 }

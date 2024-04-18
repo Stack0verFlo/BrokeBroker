@@ -1,41 +1,28 @@
 package Entities;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class User {
-    private String id; // Eindeutige ID (z.B. generiert von MongoDB)
-    private String name;
+    private String id;
+    private String username;
     private String email;
-    private String password; // Beachten Sie die Sicherheitshinweise unten
-    // Annahme, dass jedes Portfolio eine eindeutige ID hat oder direkt als Objekt referenziert wird
+    private String password; // Hinweis: Passwörter sollten verschlüsselt und sicher gespeichert werden
 
-    private double balance; // Kontostand des Benutzers
-    private List<String> portfolioIds; // Referenzen auf Portfolios, falls mehrere Portfolios unterstützt werden
+    public User(String username, String email, String password) {
 
-    public User(String name, String email, String password, double balance) {
-        this.name = name;
+        this.username = username;
         this.email = email;
         this.password = password;
-        this.balance = balance;
-        this.portfolioIds = new ArrayList<>();
-    }
-
-    // Getter und Setter
-    public String getId() {
-        return id;
     }
 
     public void setId(String id) {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public String getId() {
+        return id;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public String getUsername() {
+        return username;
     }
 
     public String getEmail() {
@@ -52,27 +39,5 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
-    }
-
-    public List<String> getPortfolioIds() {
-        return portfolioIds;
-    }
-
-    public void setPortfolioIds(List<String> portfolioIds) {
-        this.portfolioIds = portfolioIds;
-    }
-
-    public double getBalance() {
-        return balance;
-    }
-    public void setBalance(double balance) {
-        this.balance = balance;
-    }
-
-    // Methode zum Hinzufügen eines Portfolios zum Benutzer
-    public void addPortfolioId(String portfolioId) {
-        if (!portfolioIds.contains(portfolioId)) {
-            portfolioIds.add(portfolioId);
-        }
     }
 }
