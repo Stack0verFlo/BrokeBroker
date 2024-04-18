@@ -4,29 +4,38 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Portfolio {
-    private String userId; // Referenz auf den User
-    private Map<String, Integer> stocks; // Aktiensymbol zu Anzahl der Aktien
+    private String id;
+    private User owner;
+    private Map<Stock, Integer> stocks; // Aktien und ihre Anzahlen
 
-    public Portfolio(String userId) {
-        this.userId = userId;
+    public Portfolio(String id, User owner) {
+        this.id = id;
+        this.owner = owner;
         this.stocks = new HashMap<>();
     }
 
-    public String getUserId() {
-        return userId;
+    public void addStock(Stock stock, int quantity) {
+        stocks.put(stock, stocks.getOrDefault(stock, 0) + quantity);
     }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
+    public void removeStock(Stock stock, int quantity) {
+        int currentQuantity = stocks.getOrDefault(stock, 0);
+        if (currentQuantity <= quantity) {
+            stocks.remove(stock);
+        } else {
+            stocks.put(stock, currentQuantity - quantity);
+        }
     }
 
-    public Map<String, Integer> getStocks() {
+    public Map<Stock, Integer> getStocks() {
         return stocks;
     }
 
-    public void setStocks(Map<String, Integer> stocks) {
-        this.stocks = stocks;
+    public User getOwner() {
+        return owner;
     }
 
-    // Fügen Sie hier Methoden hinzu, um Aktien zum Portfolio hinzuzufügen oder zu entfernen
+    public String getId() {
+        return id;
+    }
 }

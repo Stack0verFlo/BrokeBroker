@@ -1,36 +1,42 @@
 package Entities;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class Stock {
-    private final String name;
-    private int currentPrice;
-    private List<Integer> historicalPrices;
 
-    public Stock(String name, int currentPrice) {
-        this.name = name;
+    private String symbol;
+    private double currentPrice;
+    private ArrayList<Double> historicalPrices; // ArrayList zur Speicherung historischer Preise
+
+    public Stock(String symbol, double currentPrice) {
+        this.symbol = symbol;
         this.currentPrice = currentPrice;
         this.historicalPrices = new ArrayList<>();
+        this.historicalPrices.add(currentPrice);
     }
 
-    public String getName() {
-        return name;
+    public void updatePrice(double newPrice) {
+        setCurrentPrice(newPrice);
+        historicalPrices.add(newPrice);
     }
 
-    public int getCurrentPrice() {
-        return currentPrice;
+    public void addHistoricalPrice(double price) {
+        historicalPrices.add(price);
     }
 
-    public void setCurrentPrice(int currentPrice) {
-        this.currentPrice = currentPrice;
-    }
-
-    public List<Integer> getHistoricalPrices() {
+    public ArrayList<Double> getHistoricalPrices() {
         return historicalPrices;
     }
 
-    public void setHistoricalPrices(List<Integer> historicalPrices) {
-        this.historicalPrices = historicalPrices;
+    public String getSymbol() {
+        return symbol;
+    }
+
+    public double getCurrentPrice() {
+        return currentPrice;
+    }
+
+    public void setCurrentPrice(double currentPrice) {
+        this.currentPrice = currentPrice;
     }
 }
