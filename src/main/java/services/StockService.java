@@ -10,6 +10,33 @@ public class StockService {
 
     public StockService() {
         this.stockRepository = new StockRepositoryImpl(MongoDBClient.getDatabase());
+        initializeDatabase();
+    }
+
+    private void initializeDatabase() {
+        // Prüfen, ob die Collection existiert und leere Collection mit Beispieldaten anlegen
+        if (!collectionExists()) {
+            createSampleStocks();
+        }
+    }
+
+    private boolean collectionExists() {
+        // Überprüfen, ob die Collection bereits existiert
+        return stockRepository.collectionExists();
+    }
+
+    private void createSampleStocks() {
+        // Erstellen von Beispielsaktien
+        String[] symbols = {"AAPL", "MSFT", "GOOGL", "AMZN", "FB", "TSLA", "BRK.A", "V", "JNJ", "WMT"};
+        for (String symbol : symbols) {
+            Stock stock = new Stock(symbol, generateInitialPrice());
+            stockRepository.save(stock);
+        }
+    }
+
+    private double generateInitialPrice() {
+        // Zufälliger Initialpreis für eine Aktie
+        return Math.random() * 100 + 100; // Preise zwischen 100 und 200
     }
 
     public void updateStockPrice(String symbol, double newPrice) {

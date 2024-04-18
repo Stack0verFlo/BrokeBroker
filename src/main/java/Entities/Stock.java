@@ -12,12 +12,6 @@ public class Stock {
         this.symbol = symbol;
         this.currentPrice = currentPrice;
         this.historicalPrices = new ArrayList<>();
-        this.historicalPrices.add(currentPrice);
-    }
-
-    public void updatePrice(double newPrice) {
-        setCurrentPrice(newPrice);
-        historicalPrices.add(newPrice);
     }
 
     public void addHistoricalPrice(double price) {

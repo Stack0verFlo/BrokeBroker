@@ -7,8 +7,6 @@ import com.mongodb.client.model.ReplaceOptions;
 import org.bson.Document;
 import repositories.StockRepository;
 
-import java.util.List;
-
 import static com.mongodb.client.model.Filters.eq;
 
 
@@ -20,12 +18,17 @@ public class StockRepositoryImpl implements StockRepository{
     }
 
     @Override
+    public boolean collectionExists() {
+        // Überprüfen, ob Dokumente in der Collection vorhanden sind
+        return collection.countDocuments() > 0;
+    }
+
+    @Override
     public Stock findBySymbol(String symbol) {
         Document doc = collection.find(eq("symbol", symbol)).first();
         if (doc != null) {
-            Stock stock = new Stock(doc.getString("symbol"), doc.getDouble("currentPrice"));
-            stock.getHistoricalPrices().addAll((List<Double>) doc.get("historicalPrices"));
-            return stock;
+            return new Stock(doc.getString("symbol"), doc.getDouble("currentPrice"));
+
         }
         return null;
     }
