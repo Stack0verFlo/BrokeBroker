@@ -34,7 +34,7 @@ public class StockService {
         if (stock != null) {
             double currentPrice = stock.getCurrentPrice();
             double newPrice = currentPrice + (random.nextGaussian() * 10); // Neuer Preis wird im Bereich von -10 bis +10 des aktuellen Preises generiert
-            stock.addHistoricalPrice(currentPrice);
+            stock.addHistoricalPrice(stock.getCurrentPrice());
             stock.setCurrentPrice(newPrice);
             stockRepository.save(stock);
         }
