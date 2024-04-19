@@ -4,6 +4,7 @@ import Entities.User;
 import config.MongoDBClient;
 import repositories.UserRepository;
 import repositoriesimpl.UserRepositoryImpl;
+import org.mindrot.jbcrypt.BCrypt;
 
 public class UserController {
     private final UserRepository userRepository;
@@ -14,13 +15,16 @@ public class UserController {
 
     public boolean authenticate(String username, String password) {
         User user = userRepository.findByUsername(username);
-        return user != null && user.getPassword().equals(password);
+        // Verwende jBCrypt, um das Passwort zu überprüfen
+        return user != null && BCrypt.checkpw(password, user.getPassword());
     }
 
     public boolean register(String username, String email, String password) {
         if (userRepository.findByUsername(username) == null) {
-            User newUser = new User(username, email, password);
-            userRepository.save(newUser); // ID wird intern gesetzt
+            // Hash das Passwort, bevor du es in die Datenbank speicherst
+            String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
+            User newUser = new User(username, email, hashedPassword);
+            userRepository.save(newUser);
             return true;
         }
         return false;
