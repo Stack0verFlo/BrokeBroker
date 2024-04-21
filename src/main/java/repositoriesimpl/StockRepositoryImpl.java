@@ -33,7 +33,7 @@ public class StockRepositoryImpl implements StockRepository {
     public void save(Stock stock) {
         Document doc = new Document("symbol", stock.getSymbol())
                 .append("currentPrice", stock.getCurrentPrice())
-                .append("historicalPrices", stock.getHistoricalPrices());
+                .append("historicalPrices", stock.getHistoricalPrices(40));
         collection.replaceOne(eq("symbol", stock.getSymbol()), doc, new com.mongodb.client.model.ReplaceOptions().upsert(true));
     }
     @Override

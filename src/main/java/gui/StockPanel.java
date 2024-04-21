@@ -69,6 +69,7 @@ public class StockPanel extends JPanel {
     private void handleUpdatePriceAction(ActionEvent e) {
         String symbol = (String) stockSymbolComboBox.getSelectedItem();
         stockService.updateStockPrice(symbol); // Benachrichtigt Listener, einschließlich PortfolioPanel
+        updateChart(symbol);
         updateCurrentPriceDisplay(symbol); // Aktualisiert den Preis auf dem StockPanel
     }
 
@@ -78,29 +79,37 @@ public class StockPanel extends JPanel {
     }
 
     private void updateChart(String symbol) {
-        Stock stock = stockController.getStock(symbol);
-        XYSeries series = new XYSeries("Historische Preise");
-        List<Double> prices = stock.getHistoricalPrices();
-        for (int i = 0; i < prices.size(); i++) {
-            series.add(i, prices.get(i));
-        }
-        series.add(prices.size(), stock.getCurrentPrice());
-        XYSeriesCollection dataset = new XYSeriesCollection(series);
-        JFreeChart chart = ChartFactory.createXYLineChart(
-                symbol + " Preisverlauf",
-                "Zeitpunkt",
-                "Preis",
-                dataset,
-                PlotOrientation.VERTICAL,
-                true,
-                true,
-                false);
-        if (chartPanel != null) {
-            remove(chartPanel);
-        }
-        chartPanel = new ChartPanel(chart);
-        add(chartPanel, BorderLayout.CENTER);
-        validate();
-        repaint();
+        SwingUtilities.invokeLater(() -> {
+            Stock stock = stockController.getStock(symbol);
+            XYSeries series = new XYSeries("Historische Preise");
+
+            // Hier verwenden Sie die neue Methode, um nur die letzten 40 Preise zu bekommen
+            List<Double> prices = stock.getHistoricalPrices(40);
+            for (int i = 0; i < prices.size(); i++) {
+                series.add(i, prices.get(i));
+            }
+            // Fügen Sie den aktuellen Preis als letzten Datenpunkt hinzu
+            series.add(prices.size(), stock.getCurrentPrice());
+
+            XYSeriesCollection dataset = new XYSeriesCollection(series);
+            JFreeChart chart = ChartFactory.createXYLineChart(
+                    symbol + " Preisverlauf",
+                    "Zeitpunkt",
+                    "Preis",
+                    dataset,
+                    PlotOrientation.VERTICAL,
+                    true,
+                    true,
+                    false);
+
+            if (chartPanel != null) {
+                this.remove(chartPanel);
+            }
+            chartPanel = new ChartPanel(chart);
+            this.add(chartPanel, BorderLayout.CENTER);
+
+            this.revalidate();
+            this.repaint();
+        });
     }
 }
