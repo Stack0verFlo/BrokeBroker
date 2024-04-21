@@ -13,8 +13,6 @@ import services.UserService;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
 
 public class PortfolioPanel extends JPanel implements PriceUpdateListener {
     private final PortfolioController portfolioController;
@@ -24,83 +22,82 @@ public class PortfolioPanel extends JPanel implements PriceUpdateListener {
     private JLabel portfolioIdLabel;
     private JTextField quantityTextField;
     private JLabel currentPriceLabel;
+    private StockService stockService;
 
     public PortfolioPanel(PortfolioService portfolioService, StockService stockService, UserService userService) {
-        SwingUtilities.invokeLater(this::loadCurrentUserPortfolio); // Diese Methode wird auf dem EDT aufgerufen
         this.portfolioController = new PortfolioController(portfolioService);
         this.stockController = new StockController(stockService);
         this.userController = new UserController(userService);
+        this.stockService = stockService;
         this.stockController.setPriceUpdateListener(this);
-        currentPriceLabel = new JLabel("Current Price: Loading...");
+
         setLayout(new BorderLayout());
         initializeComponents();
         add(createPortfolioForm(), BorderLayout.NORTH);
-        stocksComboBox.addItemListener(e -> {
-            if (e.getStateChange() == ItemEvent.SELECTED) {
-                String selectedSymbol = (String) e.getItem();
-                // Nehmen Sie an, dass die Methode getStockPrice das Symbol nimmt und den aktuellen Preis zurückgibt.
-                double price = stockController.getStockPrice(selectedSymbol);
-                onPriceUpdate(selectedSymbol, price);
-            }
-        });
-
-        loadCurrentUserPortfolio();
+        // Initialisieren Sie das Portfolio sofort nach der Erstellung der Komponenten
+        SwingUtilities.invokeLater(this::loadCurrentUserPortfolio);
+        // Setzen Sie den initialen Preis
+        updatePriceDisplay((String) stocksComboBox.getSelectedItem());
         revalidate();
         repaint();
     }
 
     private void initializeComponents() {
-        JPanel panel = createPortfolioForm();
-        add(panel, BorderLayout.NORTH);
-        loadCurrentUserPortfolio();
+        stocksComboBox = new JComboBox<>(stockController.getAllSymbols().toArray(new String[0]));
+        portfolioIdLabel = new JLabel("Loading...");
+        quantityTextField = new JTextField();
+        currentPriceLabel = new JLabel("Current Price: Loading...");
+
+        // Listener hinzufügen, um den Preis beim Wechsel der Auswahl zu aktualisieren
+        stocksComboBox.addActionListener(e -> updatePriceDisplay((String) stocksComboBox.getSelectedItem()));
     }
-    @Override
-    public void onPriceUpdate(String symbol, double newPrice) {
-        if (symbol.equals(stocksComboBox.getSelectedItem())) {
-            currentPriceLabel.setText(String.format("Current Price: %.2f", newPrice));
-        }
+
+    private JPanel createPortfolioForm() {
+        JPanel panel = new JPanel(new GridLayout(5, 2));
+        panel.add(new JLabel("Portfolio ID:"));
+        panel.add(portfolioIdLabel);
+        panel.add(new JLabel("Symbol:"));
+        panel.add(stocksComboBox);
+        panel.add(new JLabel("Quantity:"));
+        panel.add(quantityTextField);
+        panel.add(new JLabel("Current Price:"));
+        panel.add(currentPriceLabel);
+        JButton addButton = new JButton("Add Stock");
+        addButton.addActionListener(this::addStock);
+        panel.add(addButton);
+
+        return panel;
     }
 
     private void loadCurrentUserPortfolio() {
         User currentUser = userController.getCurrentUser();
         if (currentUser != null) {
-            // Abrufen der Portfolio-Informationen in einem separaten Thread
-            new Thread(() -> {
-                Portfolio currentPortfolio = portfolioController.getPortfolioByUserId(currentUser.getId());
-                if (currentPortfolio != null) {
-                    // Aktualisieren des Labels auf dem EDT
-                    SwingUtilities.invokeLater(() -> {
-                        portfolioIdLabel.setText(currentPortfolio.getId());
-                        portfolioIdLabel.revalidate();
-                        portfolioIdLabel.repaint();
-                    });
-                }
-            }).start();
+            Portfolio currentPortfolio = portfolioController.getPortfolioByUserId(currentUser.getId());
+            if (currentPortfolio != null) {
+                SwingUtilities.invokeLater(() -> {
+                    portfolioIdLabel.setText(currentPortfolio.getId());
+                    revalidate();
+                    repaint();
+                });
+            }
         }
     }
 
+    @Override
+    public void onPriceUpdate(String symbol, double newPrice) {
+        SwingUtilities.invokeLater(() -> {
+            // Überprüfen Sie, ob das ausgewählte Symbol dem Symbol entspricht, dessen Preis aktualisiert wurde
+            if (symbol.equals(stocksComboBox.getSelectedItem())) {
+                currentPriceLabel.setText(String.format("Current Price: %.2f", newPrice));
+            }
+        });
+    }
 
-    private JPanel createPortfolioForm() {
-        JPanel panel = new JPanel(new GridLayout(5, 2));
-        panel.add(new JLabel("Portfolio ID:"));
-        portfolioIdLabel = new JLabel("Loading...");
-        panel.add(portfolioIdLabel);
-
-        stocksComboBox = new JComboBox<>(stockController.getAllSymbols().toArray(new String[0]));
-        panel.add(new JLabel("Symbol:"));
-        panel.add(stocksComboBox);
-
-        quantityTextField = new JTextField();
-        panel.add(new JLabel("Quantity:"));
-        panel.add(quantityTextField);
-
-        JButton addButton = new JButton("Add Stock");
-        addButton.addActionListener(this::addStock);
-        panel.add(addButton);
-
-        panel.add(currentPriceLabel);
-
-        return panel;
+    private void updatePriceDisplay(String symbol) {
+        if (symbol != null && !symbol.isEmpty()) {
+            double price = stockService.getCurrentPrice(symbol);
+            currentPriceLabel.setText(String.format("Current Price: %.2f", price));
+        }
     }
 
     private void addStock(ActionEvent e) {
@@ -121,12 +118,10 @@ public class PortfolioPanel extends JPanel implements PriceUpdateListener {
         if (currentUser != null) {
             Portfolio currentPortfolio = portfolioController.getPortfolio(currentUser.getId());
             if (currentPortfolio != null) {
-                portfolioIdLabel.setText(currentPortfolio.getId());  // Zeige die Portfolio-ID an
-                revalidate();  // Aktualisiere das Panel, um die Änderungen anzuzeigen
+                portfolioIdLabel.setText(currentPortfolio.getId());
+                revalidate();
                 repaint();
             }
         }
     }
-
-
 }

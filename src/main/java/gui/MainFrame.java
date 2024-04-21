@@ -8,14 +8,13 @@ import repositoriesimpl.StockRepositoryImpl;
 import services.UserService;
 import services.PortfolioService;
 import services.StockService;
+
 import javax.swing.*;
-import java.util.concurrent.TimeUnit;
 
 public class MainFrame extends JFrame {
     private UserService userService;
     private StockService stockService;
     private PortfolioService portfolioService;
-    Thread thread = new Thread();
 
     public MainFrame() {
         setTitle("BrokeBroker");
@@ -35,9 +34,18 @@ public class MainFrame extends JFrame {
         portfolioService = new PortfolioService(portfolioRepository, stockRepository);
     }
 
+    public UserService getUserService() {
+        return userService;
+    }
+
+
     public void refreshOnLogin() {
         StockPanel stockPanel = new StockPanel(stockService);
         PortfolioPanel portfolioPanel = new PortfolioPanel(portfolioService, stockService, userService);
+
+        // Registrieren Sie das PortfolioPanel als Listener für Preisupdates
+        stockService.setPriceUpdateListener(portfolioPanel);
+
         portfolioPanel.updateForCurrentUser();
         JTabbedPane tabbedPane = new JTabbedPane();
         tabbedPane.add("Stocks", stockPanel);
@@ -51,19 +59,16 @@ public class MainFrame extends JFrame {
     public static void main(String[] args) throws InterruptedException {
         MainFrame mainFrame = new MainFrame();
         mainFrame.initializeServices();
-         // Hier initialisieren wir die Services vor dem Login
 
-        LoginDialog loginDialog = new LoginDialog(mainFrame, mainFrame.userService); // userService wird jetzt direkt übergeben
+        // LoginDialog wird mit UserService initialisiert
+        LoginDialog loginDialog = new LoginDialog(mainFrame, mainFrame.getUserService());
         loginDialog.setVisible(true);
 
         if (!loginDialog.isDisplayable()) {
-            mainFrame.refreshOnLogin();// Diese Methode wird nur aufgerufen, wenn der LoginDialog nicht mehr angezeigt wird
+            mainFrame.refreshOnLogin();
             mainFrame.setVisible(true);
-
         } else {
             System.exit(0);
         }
     }
-
-
 }

@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 public class StockService {
     private final StockRepository stockRepository;
     private final Random random;
+    private PriceUpdateListener priceUpdateListener;
 
 
     public StockService(StockRepository stockRepository) {
@@ -35,10 +36,14 @@ public class StockService {
         Stock stock = stockRepository.findBySymbol(symbol);
         if (stock != null) {
             double currentPrice = stock.getCurrentPrice();
-            double newPrice = currentPrice + (random.nextGaussian() * 10); // Neuer Preis wird im Bereich von -10 bis +10 des aktuellen Preises generiert
-            stock.addHistoricalPrice(stock.getCurrentPrice());
+            double newPrice = currentPrice + (random.nextGaussian() * 10); // Neuer Preis wird generiert
+            stock.addHistoricalPrice(currentPrice);
             stock.setCurrentPrice(newPrice);
             stockRepository.save(stock);
+            // Wichtig: Benachrichtigen Sie den Listener mit dem neuen Preis, nicht dem alten.
+            if (priceUpdateListener != null) {
+                priceUpdateListener.onPriceUpdate(symbol, newPrice);
+            }
         }
     }
 
@@ -51,5 +56,12 @@ public class StockService {
         return stockRepository.findAll().stream()
                 .map(Stock::getSymbol)
                 .collect(Collectors.toList());
+    }
+    public void setPriceUpdateListener(PriceUpdateListener listener) {
+        this.priceUpdateListener = listener;
+    }
+    public double getCurrentPrice(String symbol) {
+        Stock stock = getStock(symbol);
+        return stock != null ? stock.getCurrentPrice() : 0.0;
     }
 }

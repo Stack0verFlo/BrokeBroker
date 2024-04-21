@@ -9,6 +9,7 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import services.StockService;
+import gui.PortfolioPanel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -23,15 +24,19 @@ public class StockPanel extends JPanel {
     private JLabel currentPriceLabel;
     private ChartPanel chartPanel;
     private DecimalFormat priceFormat;
+    private StockService stockService;
+    private PortfolioPanel portfolioPanel;
 
     public StockPanel(StockService stockService) {
         this.stockController = new StockController(stockService);
+        this.stockService = stockService;
         this.priceFormat = new DecimalFormat("#.00");
         setLayout(new BorderLayout());
         initializeComponents();
         add(createControlPanel(), BorderLayout.NORTH);
         updateChart(stockController.getAllSymbols().get(0)); // Initialisiere das Chart mit dem ersten Symbol
         add(chartPanel, BorderLayout.CENTER);
+        this.stockService.setPriceUpdateListener(portfolioPanel);
     }
 
     private void initializeComponents() {
@@ -63,18 +68,13 @@ public class StockPanel extends JPanel {
 
     private void handleUpdatePriceAction(ActionEvent e) {
         String symbol = (String) stockSymbolComboBox.getSelectedItem();
-        stockController.updateStockPrice(symbol);
-        updateCurrentPriceDisplay(symbol);
-        //updateChart(symbol);
+        stockService.updateStockPrice(symbol); // Benachrichtigt Listener, einschließlich PortfolioPanel
+        updateCurrentPriceDisplay(symbol); // Aktualisiert den Preis auf dem StockPanel
     }
 
     private void updateCurrentPriceDisplay(String symbol) {
-        Stock stock = stockController.getStock(symbol);
-        String priceText = "N/A";
-        if (stock != null) {
-            priceText = priceFormat.format(stock.getCurrentPrice()) + " USD";
-        }
-        currentPriceLabel.setText(priceText);
+        double price = stockService.getCurrentPrice(symbol);
+        currentPriceLabel.setText(String.format("Current Price: %.2f", price));
     }
 
     private void updateChart(String symbol) {

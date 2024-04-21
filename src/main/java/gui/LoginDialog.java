@@ -1,6 +1,8 @@
 package gui;
 
 import javax.swing.*;
+
+import controllers.UserController;
 import services.UserService;
 import java.awt.*;
 
@@ -10,10 +12,12 @@ public class LoginDialog extends JDialog {
     private JTextField emailField;
     private JButton loginButton, registerButton;
     private UserService userService;
+    private UserController userController;
 
     public LoginDialog(JFrame parent, UserService userService) {
         super(parent, "Login", true);
-        this.userService = userService;
+        //this.userService = userService;
+        this.userController = new UserController(userService);
 
         setSize(300, 200);
         setLayout(new GridLayout(5, 2));
@@ -45,7 +49,7 @@ public class LoginDialog extends JDialog {
     private void authenticate() {
         String username = usernameField.getText();
         String password = new String(passwordField.getPassword());
-        if (userService.authenticate(username, password)) {
+        if (userController.authenticate(username, password)) {
             // Authentifizierung erfolgreich
             JOptionPane.showMessageDialog(this, "Login successful.", "Success", JOptionPane.INFORMATION_MESSAGE);
             MainFrame mainFrame = (MainFrame) getParent();
@@ -61,7 +65,7 @@ public class LoginDialog extends JDialog {
         String username = usernameField.getText();
         String password = new String(passwordField.getPassword());
         String email = emailField.getText();
-        String userId = userService.register(username, email, password);
+        String userId = userController.register(username, email, password);
         if (userId != null) {
             JOptionPane.showMessageDialog(this, "Registration successful. Please login.", "Registered", JOptionPane.INFORMATION_MESSAGE);
             usernameField.setText(username);
