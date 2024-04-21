@@ -35,10 +35,11 @@ public class StockService {
         if (stock != null) {
             double currentPrice = stock.getCurrentPrice();
             double newPrice = currentPrice + (random.nextGaussian() * 10); // Neuer Preis wird generiert
+            newPrice = Math.max(newPrice, 1.0);
             stock.addHistoricalPrice(currentPrice);
             stock.setCurrentPrice(newPrice);
             stockRepository.save(stock);
-            // Wichtig: Benachrichtigen Sie den Listener mit dem neuen Preis, nicht dem alten.
+
             if (priceUpdateListener != null) {
                 priceUpdateListener.onPriceUpdate(symbol, newPrice);
             }
