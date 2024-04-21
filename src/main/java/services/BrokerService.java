@@ -32,8 +32,9 @@ public class BrokerService {
         }
     }
 
-    public void sellStock(String userId, String symbol, int quantity) {
-        Portfolio portfolio = portfolioRepository.findByUserId(userId);
+    public void sellStock(String portfolioId, String symbol, int quantity) {
+        this.portfolioId = portfolioId;
+        this.portfolio = portfolioRepository.findById(portfolioId);
         if (portfolio.hasStock(symbol, quantity)) {
             double stockPrice = stockService.getCurrentPrice(symbol);
             StockTransaction transaction = new StockTransaction(symbol, quantity, stockPrice, TransactionType.SELL);
