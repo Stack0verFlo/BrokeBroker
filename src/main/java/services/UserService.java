@@ -46,11 +46,4 @@ public class UserService {
     public User getCurrentUser() {
         return this.currentUser;
     }
-    public void setCurrentUser(User user) {
-        this.currentUser = user;  // Setze den aktuellen Benutzer
-    }
-
-
-
-
 }

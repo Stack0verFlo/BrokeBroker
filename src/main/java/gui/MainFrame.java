@@ -12,18 +12,19 @@ import services.StockService;
 import javax.swing.*;
 
 public class MainFrame extends JFrame {
-    private UserService userService;
-    private StockService stockService;
-    private PortfolioService portfolioService;
+    private static UserService userService; // Als Singleton behandeln
+    private static StockService stockService;
+    private static PortfolioService portfolioService;
 
     public MainFrame() {
         setTitle("BrokeBroker");
         setSize(800, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
+        initializeServices(); // Initialisiert die Services bei der Erstellung des Hauptfensters
     }
 
-    public void initializeServices() {
+    private void initializeServices() {
         MongoDatabase database = MongoDBClient.getDatabase();
         UserRepositoryImpl userRepository = new UserRepositoryImpl(database);
         PortfolioRepositoryImpl portfolioRepository = new PortfolioRepositoryImpl(database);
@@ -34,17 +35,24 @@ public class MainFrame extends JFrame {
         portfolioService = new PortfolioService(portfolioRepository, stockRepository);
     }
 
-    public UserService getUserService() {
+    public static UserService getUserService() {
         return userService;
     }
 
+    public static StockService getStockService() {
+        return stockService;
+    }
+
+    public static PortfolioService getPortfolioService() {
+        return portfolioService;
+    }
 
     public void refreshOnLogin() {
-        StockPanel stockPanel = new StockPanel(stockService);
-        PortfolioPanel portfolioPanel = new PortfolioPanel(portfolioService, stockService, userService);
+        StockPanel stockPanel = new StockPanel(getStockService());
+        PortfolioPanel portfolioPanel = new PortfolioPanel(getPortfolioService(), getStockService(), getUserService());
 
         // Registrieren Sie das PortfolioPanel als Listener für Preisupdates
-        stockService.setPriceUpdateListener(portfolioPanel);
+        getStockService().setPriceUpdateListener(portfolioPanel);
 
         portfolioPanel.updateForCurrentUser();
         JTabbedPane tabbedPane = new JTabbedPane();
@@ -56,12 +64,9 @@ public class MainFrame extends JFrame {
         repaint();
     }
 
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) {
         MainFrame mainFrame = new MainFrame();
-        mainFrame.initializeServices();
-
-        // LoginDialog wird mit UserService initialisiert
-        LoginDialog loginDialog = new LoginDialog(mainFrame, mainFrame.getUserService());
+        LoginDialog loginDialog = new LoginDialog(mainFrame, getUserService());
         loginDialog.setVisible(true);
 
         if (!loginDialog.isDisplayable()) {

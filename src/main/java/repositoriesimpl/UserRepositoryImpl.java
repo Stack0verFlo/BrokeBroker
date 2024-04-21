@@ -3,13 +3,13 @@ package repositoriesimpl;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
+import org.bson.types.ObjectId;
 import Entities.User;
 import repositories.UserRepository;
 import static com.mongodb.client.model.Filters.eq;
 
 public class UserRepositoryImpl implements UserRepository {
     private final MongoCollection<Document> collection;
-    private User user;
 
     public UserRepositoryImpl(MongoDatabase database) {
         this.collection = database.getCollection("users");
@@ -19,18 +19,18 @@ public class UserRepositoryImpl implements UserRepository {
     public User findByUsername(String username) {
         Document doc = collection.find(eq("username", username)).first();
         if (doc != null) {
-            // Hier wird angenommen, dass das Passwort in der Datenbank bereits gehasht ist
             User user = new User(
                     doc.getString("username"),
                     doc.getString("email"),
-                    doc.getString("password")
+                    doc.getString("password") // Passwort ist hier bereits gehasht
             );
-            user.setId(doc.get("_id").toString());
+            // Korrekter Umgang mit ObjectId
+            ObjectId id = doc.getObjectId("_id");
+            if (id != null) {
+                user.setId(id.toString());
+            }
             return user;
-
         }
-
-
         return null;
     }
 
@@ -40,16 +40,7 @@ public class UserRepositoryImpl implements UserRepository {
                 .append("email", user.getEmail())
                 .append("password", user.getPassword()); // Passwort ist hier bereits gehasht
         collection.insertOne(doc);
-        return doc.getObjectId("_id").toString(); // Gibt die generierte ID zurück
-    }
-
-    @Override
-    public boolean authenticate(String username, String password) {
-        return false;
-    }
-
-    @Override
-    public void updatePortfolioId(String userId, String portfolioId) {
-
+        ObjectId id = (ObjectId) doc.get("_id");
+        return id != null ? id.toString() : null; // Gibt die generierte ID zurück, sicherstellen, dass ID existiert
     }
 }
