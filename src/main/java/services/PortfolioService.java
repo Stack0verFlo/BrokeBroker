@@ -12,9 +12,9 @@ public class PortfolioService {
     private final PortfolioRepository portfolioRepository;
     private final StockRepository stockRepository;
 
-    public PortfolioService() {
-        this.portfolioRepository = new PortfolioRepositoryImpl(MongoDBClient.getDatabase());
-        this.stockRepository = new StockRepositoryImpl(MongoDBClient.getDatabase());
+    public PortfolioService(PortfolioRepository portfolioRepository, StockRepository stockRepository) {
+        this.portfolioRepository = portfolioRepository;
+        this.stockRepository = stockRepository;
     }
 
     public void addStockToPortfolio(String portfolioId, String symbol, int quantity) {
@@ -37,5 +37,8 @@ public class PortfolioService {
 
     public Portfolio getPortfolio(String portfolioId) {
         return portfolioRepository.findById(portfolioId);
+    }
+    public Portfolio getPortfolioByUserId(String userId) {
+        return portfolioRepository.findByUserId(userId);
     }
 }

@@ -6,8 +6,8 @@ import services.PortfolioService;
 public class PortfolioController {
     private final PortfolioService portfolioService;
 
-    public PortfolioController() {
-        this.portfolioService = new PortfolioService();
+    public PortfolioController(PortfolioService portfolioService) {
+        this.portfolioService = portfolioService;
     }
 
     public void addStockToPortfolio(String portfolioId, String symbol, int quantity) {
@@ -20,5 +20,9 @@ public class PortfolioController {
 
     public Portfolio getPortfolio(String portfolioId) {
         return portfolioService.getPortfolio(portfolioId);
+    }
+
+    public Portfolio getPortfolioByUserId(String userId) {
+        return portfolioService.getPortfolioByUserId(userId);
     }
 }

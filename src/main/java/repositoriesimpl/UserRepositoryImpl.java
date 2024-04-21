@@ -6,10 +6,10 @@ import org.bson.Document;
 import Entities.User;
 import repositories.UserRepository;
 import static com.mongodb.client.model.Filters.eq;
-import org.mindrot.jbcrypt.BCrypt;
 
 public class UserRepositoryImpl implements UserRepository {
     private final MongoCollection<Document> collection;
+    private User user;
 
     public UserRepositoryImpl(MongoDatabase database) {
         this.collection = database.getCollection("users");
@@ -20,25 +20,36 @@ public class UserRepositoryImpl implements UserRepository {
         Document doc = collection.find(eq("username", username)).first();
         if (doc != null) {
             // Hier wird angenommen, dass das Passwort in der Datenbank bereits gehasht ist
-            return new User(
+            User user = new User(
                     doc.getString("username"),
                     doc.getString("email"),
-                    doc.getString("password") // Das sollte der gehashte Passwortwert sein
+                    doc.getString("password")
             );
+            user.setId(doc.get("_id").toString());
+            return user;
+
         }
+
+
         return null;
     }
 
     @Override
-    public void save(User user) {
+    public String save(User user) {
         Document doc = new Document("username", user.getUsername())
                 .append("email", user.getEmail())
                 .append("password", user.getPassword()); // Passwort ist hier bereits gehasht
         collection.insertOne(doc);
+        return doc.getObjectId("_id").toString(); // Gibt die generierte ID zurück
     }
 
     @Override
     public boolean authenticate(String username, String password) {
         return false;
+    }
+
+    @Override
+    public void updatePortfolioId(String userId, String portfolioId) {
+
     }
 }

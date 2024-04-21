@@ -1,17 +1,26 @@
 package Entities;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class User {
     private String id;
     private String username;
     private String email;
     private String password; // Hinweis: Passwörter sollten verschlüsselt und sicher gespeichert werden
+    private Map<String, Integer> stocks;
+
 
     public User(String username, String email, String password) {
 
         this.username = username;
         this.email = email;
         this.password = password;
+        this.stocks = new HashMap<>();
     }
+
+
+
 
     public void setId(String id) {
         this.id = id;

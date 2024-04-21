@@ -8,6 +8,7 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
+import services.StockService;
 
 import javax.swing.*;
 import java.awt.*;
@@ -23,8 +24,8 @@ public class StockPanel extends JPanel {
     private ChartPanel chartPanel;
     private DecimalFormat priceFormat;
 
-    public StockPanel() {
-        this.stockController = new StockController();
+    public StockPanel(StockService stockService) {
+        this.stockController = new StockController(stockService);
         this.priceFormat = new DecimalFormat("#.00");
         setLayout(new BorderLayout());
         initializeComponents();

@@ -13,8 +13,8 @@ public class StockService {
     private final StockRepository stockRepository;
     private final Random random;
 
-    public StockService() {
-        this.stockRepository = new StockRepositoryImpl(MongoDBClient.getDatabase());
+    public StockService(StockRepository stockRepository) {
+        this.stockRepository = stockRepository;
         this.random = new Random();
         this.initializeStocks();
     }

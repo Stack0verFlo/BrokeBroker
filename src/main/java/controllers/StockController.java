@@ -8,8 +8,8 @@ import java.util.List;
 public class StockController {
     private final StockService stockService;
 
-    public StockController() {
-        this.stockService = new StockService();
+    public StockController(StockService stockService) {
+        this.stockService = stockService;
     }
 
     public void updateStockPrice(String symbol) {

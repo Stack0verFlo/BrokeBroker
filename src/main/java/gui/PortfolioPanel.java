@@ -1,6 +1,13 @@
 package gui;
 
+import Entities.Portfolio;
+import Entities.User;
 import controllers.PortfolioController;
+import controllers.StockController;
+import controllers.UserController;
+import services.PortfolioService;
+import services.StockService;
+import services.UserService;
 
 import javax.swing.*;
 import java.awt.*;
@@ -9,44 +16,82 @@ import java.awt.event.ActionListener;
 
 public class PortfolioPanel extends JPanel{
     private final PortfolioController portfolioController;
-    private JTextField portfolioIdTextField;
-    private JTextField symbolTextField;
+    private final StockController stockController;
+    private final UserController userController;
+    private JComboBox<String> stocksComboBox;
+    private JLabel portfolioIdLabel;
     private JTextField quantityTextField;
 
-    public PortfolioPanel() {
-        portfolioController = new PortfolioController();
+    public PortfolioPanel(PortfolioService portfolioService, StockService stockService, UserService userService) {
+        this.portfolioController = new PortfolioController(portfolioService);
+        this.stockController = new StockController(stockService);
+        this.userController = new UserController(userService);
         setLayout(new BorderLayout());
+        initializeComponents();
         add(createPortfolioForm(), BorderLayout.NORTH);
+    }
+
+    private void initializeComponents() {
+        JPanel panel = createPortfolioForm();
+        add(panel, BorderLayout.NORTH);
+        loadCurrentUserPortfolio();
+    }
+
+    private void loadCurrentUserPortfolio() {
+        User currentUser = userController.getCurrentUser();
+        if (currentUser != null) {
+            Portfolio currentPortfolio = portfolioController.getPortfolioByUserId(currentUser.getId());
+            if (currentPortfolio != null) {
+                portfolioIdLabel.setText(currentPortfolio.getId());
+            }
+        }
     }
 
     private JPanel createPortfolioForm() {
         JPanel panel = new JPanel(new GridLayout(4, 2));
-
         panel.add(new JLabel("Portfolio ID:"));
-        portfolioIdTextField = new JTextField();
-        panel.add(portfolioIdTextField);
+        portfolioIdLabel = new JLabel();
+        panel.add(portfolioIdLabel);
 
+        stocksComboBox = new JComboBox<>(stockController.getAllSymbols().toArray(new String[0]));
         panel.add(new JLabel("Symbol:"));
-        symbolTextField = new JTextField();
-        panel.add(symbolTextField);
+        panel.add(stocksComboBox);
 
-        panel.add(new JLabel("Quantity:"));
         quantityTextField = new JTextField();
+        panel.add(new JLabel("Quantity:"));
         panel.add(quantityTextField);
 
         JButton addButton = new JButton("Add Stock");
-        addButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String portfolioId = portfolioIdTextField.getText();
-                String symbol = symbolTextField.getText();
-                int quantity = Integer.parseInt(quantityTextField.getText());
-                portfolioController.addStockToPortfolio(portfolioId, symbol, quantity);
-                JOptionPane.showMessageDialog(PortfolioPanel.this, "Stock Added", "Add Stock", JOptionPane.INFORMATION_MESSAGE);
-            }
-        });
+        addButton.addActionListener(this::addStock);
         panel.add(addButton);
 
         return panel;
     }
+
+    private void addStock(ActionEvent e) {
+        String portfolioId = portfolioIdLabel.getText();
+        String symbol = (String) stocksComboBox.getSelectedItem();
+        int quantity;
+        try {
+            quantity = Integer.parseInt(quantityTextField.getText());
+            portfolioController.addStockToPortfolio(portfolioId, symbol, quantity);
+            JOptionPane.showMessageDialog(this, "Stock Added", "Add Stock", JOptionPane.INFORMATION_MESSAGE);
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(this, "Quantity must be a number", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    public void updateForCurrentUser() {
+        User currentUser = userController.getCurrentUser();
+        if (currentUser != null) {
+            Portfolio currentPortfolio = portfolioController.getPortfolio(currentUser.getId());
+            if (currentPortfolio != null) {
+                portfolioIdLabel.setText(currentPortfolio.getId());  // Zeige die Portfolio-ID an
+                revalidate();  // Aktualisiere das Panel, um die Änderungen anzuzeigen
+                repaint();
+            }
+        }
+    }
+
+
 }

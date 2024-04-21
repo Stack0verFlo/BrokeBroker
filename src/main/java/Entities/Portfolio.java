@@ -1,16 +1,19 @@
 package Entities;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class Portfolio {
     private String id;
+    private String userId;
     private User owner;
     private Map<Stock, Integer> stocks; // Aktien und ihre Anzahlen
 
-    public Portfolio(String id, User owner) {
-        this.id = id;
-        this.owner = owner;
+    public Portfolio(String userId) {
+        this.userId = userId;
+        //this.owner = owner;
         this.stocks = new HashMap<>();
     }
 
@@ -35,7 +38,15 @@ public class Portfolio {
         return owner;
     }
 
+    public String getUserId() {
+        return userId;
+    }
+    public void setId(String id) {
+        this.id = id;
+    }
     public String getId() {
-        return id;
+        return this.id;
     }
 }
+
+
