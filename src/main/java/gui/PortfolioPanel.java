@@ -1,9 +1,9 @@
 package gui;
 
 import Entities.Portfolio;
+import Entities.StockEntry;
 import Entities.User;
 import controllers.PortfolioController;
-import controllers.StockController;
 import controllers.UserController;
 import repositories.PriceUpdateListener;
 import services.BrokerService;
@@ -12,64 +12,101 @@ import services.StockService;
 import services.UserService;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.util.List;
 
 public class PortfolioPanel extends JPanel implements PriceUpdateListener {
     private final PortfolioController portfolioController;
-    private final StockController stockController;
     private final UserController userController;
+    private final BrokerService brokerService;
+    private final StockService stockService;
+
     private JComboBox<String> stocksComboBox;
     private JLabel portfolioIdLabel;
     private JTextField quantityTextField;
     private JLabel currentPriceLabel;
-    private StockService stockService;
-    private BrokerService brokerService;
+    private JLabel balanceLabel;
+    private JTable stocksTable;
+    private DefaultTableModel stocksTableModel;
 
     public PortfolioPanel(PortfolioService portfolioService, StockService stockService, UserService userService) {
         this.portfolioController = new PortfolioController(portfolioService);
-        this.stockController = new StockController(stockService);
         this.userController = new UserController(userService);
         this.stockService = stockService;
-        this.stockController.setPriceUpdateListener(this);
-        this.brokerService = MainFrame.getBrokerService();
+        this.brokerService = MainFrame.getBrokerService(); // Assuming MainFrame is properly setting this.
 
         setLayout(new BorderLayout());
         initializeComponents();
         add(createPortfolioForm(), BorderLayout.NORTH);
-        // Initialisieren Sie das Portfolio sofort nach der Erstellung der Komponenten
-        SwingUtilities.invokeLater(this::loadCurrentUserPortfolio);
-        // Setzen Sie den initialen Preis
-        updatePriceDisplay((String) stocksComboBox.getSelectedItem());
-        revalidate();
-        repaint();
+        add(createStocksTable(), BorderLayout.CENTER);
+        add(balanceLabel, BorderLayout.SOUTH);
+
+        loadCurrentUserPortfolio();
     }
 
     private void initializeComponents() {
-        stocksComboBox = new JComboBox<>(stockController.getAllSymbols().toArray(new String[0]));
-        portfolioIdLabel = new JLabel("Loading...");
-        quantityTextField = new JTextField();
-        currentPriceLabel = new JLabel("Current Price: Loading...");
-
-        // Listener hinzufügen, um den Preis beim Wechsel der Auswahl zu aktualisieren
+        stocksComboBox = new JComboBox<>();
+        stockService.getAllSymbols().forEach(symbol -> stocksComboBox.addItem(symbol));
         stocksComboBox.addActionListener(e -> updatePriceDisplay((String) stocksComboBox.getSelectedItem()));
+
+        portfolioIdLabel = new JLabel("Loading...");
+        quantityTextField = new JTextField(5);
+        currentPriceLabel = new JLabel("Current Price: Loading...");
+        balanceLabel = new JLabel("Balance: Loading...");
+    }
+    public void updateForCurrentUser() {
+        User currentUser = userController.getCurrentUser();
+        if (currentUser != null) {
+            Portfolio currentPortfolio = portfolioController.getPortfolioByUserId(currentUser.getId());
+            if (currentPortfolio != null) {
+                SwingUtilities.invokeLater(() -> {
+                    portfolioIdLabel.setText(currentPortfolio.getId());
+                    balanceLabel.setText(String.format("Balance: %.2f", currentPortfolio.getBalance()));
+                    loadStocksInTable(currentPortfolio.getStocks());
+                });
+            } else {
+                clearPortfolioDisplay();
+            }
+        } else {
+            clearPortfolioDisplay();
+        }
+    }
+    private void clearPortfolioDisplay() {
+        SwingUtilities.invokeLater(() -> {
+            portfolioIdLabel.setText("No Portfolio Loaded");
+            balanceLabel.setText("Balance: N/A");
+            stocksTableModel.setRowCount(0); // Clear the stocks table
+        });
     }
 
     private JPanel createPortfolioForm() {
-        JPanel panel = new JPanel(new GridLayout(5, 2));
-        panel.add(new JLabel("Portfolio ID:"));
-        panel.add(portfolioIdLabel);
-        panel.add(new JLabel("Symbol:"));
-        panel.add(stocksComboBox);
-        panel.add(new JLabel("Quantity:"));
-        panel.add(quantityTextField);
-        panel.add(new JLabel("Current Price:"));
-        panel.add(currentPriceLabel);
+        JPanel formPanel = new JPanel(new GridLayout(0, 2));
+        formPanel.add(new JLabel("Portfolio ID:"));
+        formPanel.add(portfolioIdLabel);
+        formPanel.add(new JLabel("Symbol:"));
+        formPanel.add(stocksComboBox);
+        formPanel.add(new JLabel("Quantity:"));
+        formPanel.add(quantityTextField);
+        formPanel.add(new JLabel("Current Price:"));
+        formPanel.add(currentPriceLabel);
+
         JButton addButton = new JButton("Add Stock");
         addButton.addActionListener(this::addStock);
-        panel.add(addButton);
+        formPanel.add(addButton);
 
-        return panel;
+        JButton sellButton = new JButton("Sell Stock");
+        sellButton.addActionListener(this::sellStock);
+        formPanel.add(sellButton);
+
+        return formPanel;
+    }
+
+    private JScrollPane createStocksTable() {
+        stocksTableModel = new DefaultTableModel(new Object[]{"Symbol", "Quantity", "Purchase Price"}, 0);
+        stocksTable = new JTable(stocksTableModel);
+        return new JScrollPane(stocksTable);
     }
 
     private void loadCurrentUserPortfolio() {
@@ -79,54 +116,55 @@ public class PortfolioPanel extends JPanel implements PriceUpdateListener {
             if (currentPortfolio != null) {
                 SwingUtilities.invokeLater(() -> {
                     portfolioIdLabel.setText(currentPortfolio.getId());
-                    revalidate();
-                    repaint();
+                    balanceLabel.setText(String.format("Balance: %.2f", currentPortfolio.getBalance()));
+                    loadStocksInTable(currentPortfolio.getStocks());
                 });
             }
         }
     }
 
-    @Override
-    public void onPriceUpdate(String symbol, double newPrice) {
-        SwingUtilities.invokeLater(() -> {
-            // Überprüfen Sie, ob das ausgewählte Symbol dem Symbol entspricht, dessen Preis aktualisiert wurde
-            if (symbol.equals(stocksComboBox.getSelectedItem())) {
-                currentPriceLabel.setText(String.format("Current Price: %.2f", newPrice));
-            }
-        });
-    }
-
     private void updatePriceDisplay(String symbol) {
-        if (symbol != null && !symbol.isEmpty()) {
-            double price = stockService.getCurrentPrice(symbol);
-            currentPriceLabel.setText(String.format("Current Price: %.2f", price));
-        }
+        double price = stockService.getCurrentPrice(symbol);
+        currentPriceLabel.setText(String.format("Current Price: %.2f", price));
     }
 
     private void addStock(ActionEvent e) {
         try {
-            String portfolioID = portfolioIdLabel.getText();
+            String portfolioId = portfolioIdLabel.getText();
             String symbol = (String) stocksComboBox.getSelectedItem();
             int quantity = Integer.parseInt(quantityTextField.getText());
-            
-            brokerService.buyStock(portfolioID, symbol, quantity);
-            JOptionPane.showMessageDialog(this, "Stock purchased successfully", "Success", JOptionPane.INFORMATION_MESSAGE);
+            brokerService.buyStock(portfolioId, symbol, quantity);
+            JOptionPane.showMessageDialog(this, "Stock added successfully", "Success", JOptionPane.INFORMATION_MESSAGE);
+            loadCurrentUserPortfolio(); // Reload the current user's portfolio
         } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(this, "Quantity must be a number", "Error", JOptionPane.ERROR_MESSAGE);
-        } catch (IllegalArgumentException ex) {
-            JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Invalid quantity", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
-    public void updateForCurrentUser() {
-        User currentUser = userController.getCurrentUser();
-        if (currentUser != null) {
-            Portfolio currentPortfolio = portfolioController.getPortfolio(currentUser.getId());
-            if (currentPortfolio != null) {
-                portfolioIdLabel.setText(currentPortfolio.getId());
-                revalidate();
-                repaint();
-            }
+    private void sellStock(ActionEvent e) {
+        try {
+            String portfolioId = portfolioIdLabel.getText();
+            String symbol = (String) stocksComboBox.getSelectedItem();
+            int quantity = Integer.parseInt(quantityTextField.getText());
+            brokerService.sellStock(portfolioId, symbol, quantity);
+            JOptionPane.showMessageDialog(this, "Stock sold successfully", "Success", JOptionPane.INFORMATION_MESSAGE);
+            loadCurrentUserPortfolio(); // Reload the current user's portfolio
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(this, "Invalid quantity", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void loadStocksInTable(List<StockEntry> stocks) {
+        stocksTableModel.setRowCount(0);
+        for (StockEntry stock : stocks) {
+            stocksTableModel.addRow(new Object[]{stock.getSymbol(), stock.getQuantity(), String.format("%.2f", stock.getPurchasePrice())});
+        }
+    }
+
+    @Override
+    public void onPriceUpdate(String symbol, double newPrice) {
+        if (symbol.equals(stocksComboBox.getSelectedItem())) {
+            updatePriceDisplay(symbol);
         }
     }
 }
