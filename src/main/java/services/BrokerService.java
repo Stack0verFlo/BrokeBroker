@@ -32,16 +32,20 @@ public class BrokerService {
         }
     }
 
-    public void sellStock(String userId, String symbol, int quantity) {
-        Portfolio portfolio = portfolioRepository.findByUserId(userId);
-        if (portfolio.hasStock(symbol, quantity)) {
-            double stockPrice = stockService.getCurrentPrice(symbol);
-            StockTransaction transaction = new StockTransaction(symbol, quantity, stockPrice, TransactionType.SELL);
-            portfolio.performTransaction(transaction);
-            portfolioRepository.save(portfolio);
-        } else {
-            throw new IllegalArgumentException("Not enough stock");
+    public void sellStock(String portfolioId, String symbol, int quantity) {
+        Portfolio portfolio = portfolioRepository.findById(portfolioId);
+        if (portfolio == null) {
+            throw new IllegalStateException("No portfolio found for ID: " + portfolioId);
         }
+
+        if (!portfolio.hasStock(symbol, quantity)) {
+            throw new IllegalArgumentException("Not enough stock to sell");
+        }
+
+        double stockPrice = stockService.getCurrentPrice(symbol);
+        StockTransaction transaction = new StockTransaction(symbol, quantity, stockPrice, TransactionType.SELL);
+        portfolio.performTransaction(transaction);
+        portfolioRepository.save(portfolio);
     }
 
 
