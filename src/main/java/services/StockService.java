@@ -1,6 +1,7 @@
 package services;
 
 import Entities.Stock;
+import repositories.PriceUpdateListener;
 import repositories.StockRepository;
 import repositoriesimpl.StockRepositoryImpl;
 import config.MongoDBClient;
@@ -12,6 +13,7 @@ import java.util.stream.Collectors;
 public class StockService {
     private final StockRepository stockRepository;
     private final Random random;
+
 
     public StockService(StockRepository stockRepository) {
         this.stockRepository = stockRepository;

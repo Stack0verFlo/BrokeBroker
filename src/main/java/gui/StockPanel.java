@@ -65,7 +65,7 @@ public class StockPanel extends JPanel {
         String symbol = (String) stockSymbolComboBox.getSelectedItem();
         stockController.updateStockPrice(symbol);
         updateCurrentPriceDisplay(symbol);
-        updateChart(symbol);
+        //updateChart(symbol);
     }
 
     private void updateCurrentPriceDisplay(String symbol) {
