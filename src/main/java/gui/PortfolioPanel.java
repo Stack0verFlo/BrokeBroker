@@ -29,6 +29,8 @@ public class PortfolioPanel extends JPanel{
         setLayout(new BorderLayout());
         initializeComponents();
         add(createPortfolioForm(), BorderLayout.NORTH);
+        revalidate();
+        repaint();
     }
 
     private void initializeComponents() {
@@ -42,7 +44,11 @@ public class PortfolioPanel extends JPanel{
         if (currentUser != null) {
             Portfolio currentPortfolio = portfolioController.getPortfolioByUserId(currentUser.getId());
             if (currentPortfolio != null) {
-                portfolioIdLabel.setText(currentPortfolio.getId());
+                SwingUtilities.invokeLater(() -> {
+                    portfolioIdLabel.setText(currentPortfolio.getId());
+                    portfolioIdLabel.revalidate();
+                    portfolioIdLabel.repaint();
+                });
             }
         }
     }
@@ -50,7 +56,7 @@ public class PortfolioPanel extends JPanel{
     private JPanel createPortfolioForm() {
         JPanel panel = new JPanel(new GridLayout(4, 2));
         panel.add(new JLabel("Portfolio ID:"));
-        portfolioIdLabel = new JLabel();
+        portfolioIdLabel = new JLabel("Loading...");
         panel.add(portfolioIdLabel);
 
         stocksComboBox = new JComboBox<>(stockController.getAllSymbols().toArray(new String[0]));
