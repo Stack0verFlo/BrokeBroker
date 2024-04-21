@@ -54,10 +54,6 @@ public class MainFrame extends JFrame {
         return brokerService;
     }
 
-    public static void setBrokerService(BrokerService brokerService) {
-        MainFrame.brokerService = brokerService;
-    }
-
     public void refreshOnLogin() {
         StockPanel stockPanel = new StockPanel(getStockService());
         PortfolioPanel portfolioPanel = new PortfolioPanel(getPortfolioService(), getStockService(), getUserService());
@@ -68,7 +64,7 @@ public class MainFrame extends JFrame {
         portfolioPanel.updateForCurrentUser();
         JTabbedPane tabbedPane = new JTabbedPane();
         tabbedPane.add("Stocks", stockPanel);
-        tabbedPane.add("Portfolios", portfolioPanel);
+        tabbedPane.add("Portfolio", portfolioPanel);
         setContentPane(tabbedPane);
 
         validate();

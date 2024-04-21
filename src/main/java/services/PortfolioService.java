@@ -2,11 +2,8 @@ package services;
 
 import Entities.Portfolio;
 import Entities.Stock;
-import config.MongoDBClient;
 import repositories.PortfolioRepository;
 import repositories.StockRepository;
-import repositoriesimpl.PortfolioRepositoryImpl;
-import repositoriesimpl.StockRepositoryImpl;
 
 public class PortfolioService {
     private final PortfolioRepository portfolioRepository;
