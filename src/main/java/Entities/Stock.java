@@ -26,14 +26,6 @@ public class Stock {
         this.historicalPrices = new ArrayList<>();
     }
 
-    //public void addHistoricalPrice(double price) {
-    //    historicalPrices.add(price);
-    //}
-
-    //public ArrayList<Double> getHistoricalPrices() {
-    //    return historicalPrices;
-    //}
-
     public String getSymbol() {
         return symbol;
     }

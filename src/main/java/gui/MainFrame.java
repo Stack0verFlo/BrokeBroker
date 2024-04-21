@@ -54,10 +54,6 @@ public class MainFrame extends JFrame {
         return brokerService;
     }
 
-    public static void setBrokerService(BrokerService brokerService) {
-        MainFrame.brokerService = brokerService;
-    }
-
     public void refreshOnLogin() {
         StockPanel stockPanel = new StockPanel(getStockService());
         PortfolioPanel portfolioPanel = new PortfolioPanel(getPortfolioService(), getStockService(), getUserService());

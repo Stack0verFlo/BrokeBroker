@@ -9,7 +9,6 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import services.StockService;
-import gui.PortfolioPanel;
 
 import javax.swing.*;
 import java.awt.*;

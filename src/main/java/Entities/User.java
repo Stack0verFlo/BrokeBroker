@@ -19,9 +19,6 @@ public class User {
         this.stocks = new HashMap<>();
     }
 
-
-
-
     public void setId(String id) {
         this.id = id;
     }
@@ -44,9 +41,5 @@ public class User {
 
     public String getPassword() {
         return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
     }
 }

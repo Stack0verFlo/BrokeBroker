@@ -3,8 +3,6 @@ package services;
 import Entities.Stock;
 import repositories.PriceUpdateListener;
 import repositories.StockRepository;
-import repositoriesimpl.StockRepositoryImpl;
-import config.MongoDBClient;
 
 import java.util.List;
 import java.util.Random;

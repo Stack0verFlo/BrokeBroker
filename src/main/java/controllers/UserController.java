@@ -1,10 +1,6 @@
 package controllers;
 
 import Entities.User;
-import config.MongoDBClient;
-import repositories.UserRepository;
-import repositoriesimpl.UserRepositoryImpl;
-import org.mindrot.jbcrypt.BCrypt;
 import services.UserService;
 
 public class UserController {

@@ -1,7 +1,5 @@
 package Entities;
 
-import java.sql.Struct;
-
 public class StockEntry {
     private String symbol;
     private int quantity;

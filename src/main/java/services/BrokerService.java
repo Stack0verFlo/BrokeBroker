@@ -18,7 +18,6 @@ public class BrokerService {
 
     public void buyStock(String portfolioId, String symbol, int quantity) {
         this.portfolioId = portfolioId;
-        //Portfolio portfolio = portfolioRepository.findByUserId(userId);
         this.portfolio = portfolioRepository.findById(portfolioId);
         double stockPrice = stockService.getCurrentPrice(symbol);
         double totalPrice = stockPrice * quantity;

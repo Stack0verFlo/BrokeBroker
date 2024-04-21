@@ -11,7 +11,6 @@ public class LoginDialog extends JDialog {
     private JPasswordField passwordField;
     private JTextField emailField;
     private JButton loginButton, registerButton;
-    private UserService userService;
     private UserController userController;
 
     public LoginDialog(JFrame parent, UserService userService) {

@@ -8,9 +8,7 @@ import java.util.Map;
 public class Portfolio {
     private String id;
     private String userId;
-
     private double balance;
-    private List<StockTransaction> transactions;
 
     private Map<String, StockEntry> stocks;
 

@@ -9,9 +9,7 @@ import org.bson.types.ObjectId;
 import repositories.PortfolioRepository;
 import Entities.StockEntry;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.stream.Collectors;
 
 import static com.mongodb.client.model.Filters.eq;
@@ -19,7 +17,6 @@ import static com.mongodb.client.model.Filters.eq;
 public class PortfolioRepositoryImpl implements PortfolioRepository {
 
     private final MongoCollection<Document> collection;
-    private StockEntry stockEntry;
 
     public PortfolioRepositoryImpl(MongoDatabase database) {
         this.collection = database.getCollection("portfolios");
@@ -50,17 +47,6 @@ public class PortfolioRepositoryImpl implements PortfolioRepository {
 
         collection.insertOne(newPortfolio);
     }
-
-    @Override
-    public void update(Portfolio portfolio) {
-        Document doc = new Document("_id", portfolio.getId())
-                .append("userId", portfolio.getUserId())
-                .append("balance", portfolio.getBalance())
-                .append("stocks", portfolio.getStocks())
-                .append("quantity",stockEntry.getQuantity());
-        collection.replaceOne(eq("_id", portfolio.getId()), doc);
-    }
-
     @Override
     public Portfolio findById(String portfolioId) {
         if (portfolioId == null /*|| portfolioId.length() != 24*/) {
