@@ -41,9 +41,7 @@ public class BrokerService {
             portfolio.performTransaction(transaction);
             portfolioRepository.save(portfolio);
         } else {
-            throw new IllegalArgumentException("Not enough stock");
+            throw new IllegalArgumentException("Not enough stocks to sell");
         }
     }
-
-
 }
