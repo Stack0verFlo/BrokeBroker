@@ -21,7 +21,7 @@ public class PortfolioService {
         Portfolio portfolio = portfolioRepository.findById(portfolioId);
         Stock stock = stockRepository.findBySymbol(symbol);
         if (portfolio != null && stock != null) {
-            portfolio.addStock(stock, quantity);
+            portfolio.addStock(String.valueOf(stock), quantity, stock.getCurrentPrice());
             portfolioRepository.save(portfolio);
         }
     }
@@ -30,7 +30,7 @@ public class PortfolioService {
         Portfolio portfolio = portfolioRepository.findById(portfolioId);
         Stock stock = stockRepository.findBySymbol(symbol);
         if (portfolio != null && stock != null) {
-            portfolio.removeStock(stock, quantity);
+            portfolio.removeStock(String.valueOf(stock), quantity);
             portfolioRepository.save(portfolio);
         }
     }

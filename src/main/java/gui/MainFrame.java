@@ -5,6 +5,7 @@ import config.MongoDBClient;
 import repositoriesimpl.UserRepositoryImpl;
 import repositoriesimpl.PortfolioRepositoryImpl;
 import repositoriesimpl.StockRepositoryImpl;
+import services.BrokerService;
 import services.UserService;
 import services.PortfolioService;
 import services.StockService;
@@ -15,6 +16,7 @@ public class MainFrame extends JFrame {
     private static UserService userService; // Als Singleton behandeln
     private static StockService stockService;
     private static PortfolioService portfolioService;
+    private static BrokerService brokerService;
 
     public MainFrame() {
         setTitle("BrokeBroker");
@@ -33,6 +35,7 @@ public class MainFrame extends JFrame {
         userService = new UserService(userRepository, portfolioRepository);
         stockService = new StockService(stockRepository);
         portfolioService = new PortfolioService(portfolioRepository, stockRepository);
+        brokerService = new BrokerService(portfolioRepository, stockService);
     }
 
     public static UserService getUserService() {
@@ -45,6 +48,14 @@ public class MainFrame extends JFrame {
 
     public static PortfolioService getPortfolioService() {
         return portfolioService;
+    }
+
+    public static BrokerService getBrokerService() {
+        return brokerService;
+    }
+
+    public static void setBrokerService(BrokerService brokerService) {
+        MainFrame.brokerService = brokerService;
     }
 
     public void refreshOnLogin() {

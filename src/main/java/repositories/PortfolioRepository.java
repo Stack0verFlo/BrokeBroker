@@ -7,5 +7,6 @@ public interface PortfolioRepository {
     Portfolio findById(String id);
     void save(Portfolio portfolio);
     void createForUserId(String userId);
-
+    void update(Portfolio portfolio);
+    //boolean canAfford(double totalPrice);
 }

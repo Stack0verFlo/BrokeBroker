@@ -6,6 +6,7 @@ import controllers.PortfolioController;
 import controllers.StockController;
 import controllers.UserController;
 import repositories.PriceUpdateListener;
+import services.BrokerService;
 import services.PortfolioService;
 import services.StockService;
 import services.UserService;
@@ -23,6 +24,7 @@ public class PortfolioPanel extends JPanel implements PriceUpdateListener {
     private JTextField quantityTextField;
     private JLabel currentPriceLabel;
     private StockService stockService;
+    private BrokerService brokerService;
 
     public PortfolioPanel(PortfolioService portfolioService, StockService stockService, UserService userService) {
         this.portfolioController = new PortfolioController(portfolioService);
@@ -30,6 +32,7 @@ public class PortfolioPanel extends JPanel implements PriceUpdateListener {
         this.userController = new UserController(userService);
         this.stockService = stockService;
         this.stockController.setPriceUpdateListener(this);
+        this.brokerService = MainFrame.getBrokerService();
 
         setLayout(new BorderLayout());
         initializeComponents();
@@ -101,15 +104,17 @@ public class PortfolioPanel extends JPanel implements PriceUpdateListener {
     }
 
     private void addStock(ActionEvent e) {
-        String portfolioId = portfolioIdLabel.getText();
-        String symbol = (String) stocksComboBox.getSelectedItem();
-        int quantity;
         try {
-            quantity = Integer.parseInt(quantityTextField.getText());
-            portfolioController.addStockToPortfolio(portfolioId, symbol, quantity);
-            JOptionPane.showMessageDialog(this, "Stock Added", "Add Stock", JOptionPane.INFORMATION_MESSAGE);
+            String portfolioID = portfolioIdLabel.getText();
+            String symbol = (String) stocksComboBox.getSelectedItem();
+            int quantity = Integer.parseInt(quantityTextField.getText());
+            
+            brokerService.buyStock(portfolioID, symbol, quantity);
+            JOptionPane.showMessageDialog(this, "Stock purchased successfully", "Success", JOptionPane.INFORMATION_MESSAGE);
         } catch (NumberFormatException ex) {
             JOptionPane.showMessageDialog(this, "Quantity must be a number", "Error", JOptionPane.ERROR_MESSAGE);
+        } catch (IllegalArgumentException ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
