@@ -146,6 +146,15 @@ public class PortfolioPanel extends JPanel implements PriceUpdateListener {
             String portfolioId = portfolioIdLabel.getText();
             String symbol = (String) stocksComboBox.getSelectedItem();
             int quantity = Integer.parseInt(quantityTextField.getText());
+            Portfolio portfolio = portfolioController.getPortfolioByUserId(userController.getCurrentUser().getId());
+            if (portfolio == null) {
+                JOptionPane.showMessageDialog(this, "No portfolio loaded", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            if (!portfolio.hasStock(symbol, quantity)) {
+                JOptionPane.showMessageDialog(this, "Insufficient stock to sell", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
             brokerService.sellStock(portfolioId, symbol, quantity);
             JOptionPane.showMessageDialog(this, "Stock sold successfully", "Success", JOptionPane.INFORMATION_MESSAGE);
             loadCurrentUserPortfolio(); // Reload the current user's portfolio
