@@ -9,11 +9,13 @@ import services.UserService;
 import services.PortfolioService;
 import services.StockService;
 import javax.swing.*;
+import java.util.concurrent.TimeUnit;
 
 public class MainFrame extends JFrame {
     private UserService userService;
     private StockService stockService;
     private PortfolioService portfolioService;
+    Thread thread = new Thread();
 
     public MainFrame() {
         setTitle("BrokeBroker");
@@ -46,16 +48,18 @@ public class MainFrame extends JFrame {
         repaint();
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         MainFrame mainFrame = new MainFrame();
-        mainFrame.initializeServices(); // Hier initialisieren wir die Services vor dem Login
+        mainFrame.initializeServices();
+         // Hier initialisieren wir die Services vor dem Login
 
         LoginDialog loginDialog = new LoginDialog(mainFrame, mainFrame.userService); // userService wird jetzt direkt übergeben
         loginDialog.setVisible(true);
 
         if (!loginDialog.isDisplayable()) {
-            mainFrame.refreshOnLogin(); // Diese Methode wird nur aufgerufen, wenn der LoginDialog nicht mehr angezeigt wird
+            mainFrame.refreshOnLogin();// Diese Methode wird nur aufgerufen, wenn der LoginDialog nicht mehr angezeigt wird
             mainFrame.setVisible(true);
+
         } else {
             System.exit(0);
         }

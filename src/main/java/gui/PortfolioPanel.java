@@ -23,6 +23,7 @@ public class PortfolioPanel extends JPanel{
     private JTextField quantityTextField;
 
     public PortfolioPanel(PortfolioService portfolioService, StockService stockService, UserService userService) {
+        SwingUtilities.invokeLater(this::loadCurrentUserPortfolio); // Diese Methode wird auf dem EDT aufgerufen
         this.portfolioController = new PortfolioController(portfolioService);
         this.stockController = new StockController(stockService);
         this.userController = new UserController(userService);
@@ -42,16 +43,21 @@ public class PortfolioPanel extends JPanel{
     private void loadCurrentUserPortfolio() {
         User currentUser = userController.getCurrentUser();
         if (currentUser != null) {
-            Portfolio currentPortfolio = portfolioController.getPortfolioByUserId(currentUser.getId());
-            if (currentPortfolio != null) {
-                SwingUtilities.invokeLater(() -> {
-                    portfolioIdLabel.setText(currentPortfolio.getId());
-                    portfolioIdLabel.revalidate();
-                    portfolioIdLabel.repaint();
-                });
-            }
+            // Abrufen der Portfolio-Informationen in einem separaten Thread
+            new Thread(() -> {
+                Portfolio currentPortfolio = portfolioController.getPortfolioByUserId(currentUser.getId());
+                if (currentPortfolio != null) {
+                    // Aktualisieren des Labels auf dem EDT
+                    SwingUtilities.invokeLater(() -> {
+                        portfolioIdLabel.setText(currentPortfolio.getId());
+                        portfolioIdLabel.revalidate();
+                        portfolioIdLabel.repaint();
+                    });
+                }
+            }).start();
         }
     }
+
 
     private JPanel createPortfolioForm() {
         JPanel panel = new JPanel(new GridLayout(4, 2));
