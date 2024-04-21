@@ -68,7 +68,7 @@ public class MainFrame extends JFrame {
         portfolioPanel.updateForCurrentUser();
         JTabbedPane tabbedPane = new JTabbedPane();
         tabbedPane.add("Stocks", stockPanel);
-        tabbedPane.add("Portfolios", portfolioPanel);
+        tabbedPane.add("Portfolio", portfolioPanel);
         setContentPane(tabbedPane);
 
         validate();

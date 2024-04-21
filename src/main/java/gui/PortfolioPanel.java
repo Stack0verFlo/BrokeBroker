@@ -55,6 +55,9 @@ public class PortfolioPanel extends JPanel implements PriceUpdateListener {
         quantityTextField = new JTextField(5);
         currentPriceLabel = new JLabel("Current Price: Loading...");
         balanceLabel = new JLabel("Balance: Loading...");
+        if (stocksComboBox.getItemCount() > 0) {
+            updatePriceDisplay(stocksComboBox.getItemAt(0));
+        }
     }
     public void updateForCurrentUser() {
         User currentUser = userController.getCurrentUser();
