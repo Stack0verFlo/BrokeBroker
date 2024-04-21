@@ -47,6 +47,4 @@ public class BrokerService {
         portfolio.performTransaction(transaction);
         portfolioRepository.save(portfolio);
     }
-
-
 }
