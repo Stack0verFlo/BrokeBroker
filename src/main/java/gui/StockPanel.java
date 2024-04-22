@@ -23,7 +23,7 @@ public class StockPanel extends JPanel {
     private JLabel currentPriceLabel;
     private ChartPanel chartPanel;
     private DecimalFormat priceFormat;
-    private StockService stockService;
+    private final StockService stockService;
     private PortfolioPanel portfolioPanel;
 
     public StockPanel(StockService stockService) {

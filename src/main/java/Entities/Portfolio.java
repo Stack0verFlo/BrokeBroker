@@ -7,10 +7,10 @@ import java.util.Map;
 
 public class Portfolio {
     private String id;
-    private String userId;
+    private final String userId;
     private double balance;
 
-    private Map<String, StockEntry> stocks;
+    private final Map<String, StockEntry> stocks;
 
     public Portfolio(String userId, double balance) {
         this.userId = userId;

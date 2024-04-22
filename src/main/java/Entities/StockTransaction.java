@@ -2,9 +2,9 @@ package Entities;
 
 public class StockTransaction {
     private String symbol;
-    private int quantity;
-    private double price;
-    private TransactionType type; // Enum für BUY oder SELL
+    private final int quantity;
+    private final double price;
+    private final TransactionType type; // Enum für BUY oder SELL
 
     public StockTransaction(String symbol, int quantity, double price, TransactionType type) {
         this.symbol = symbol;

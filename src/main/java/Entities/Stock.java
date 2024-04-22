@@ -5,7 +5,7 @@ import java.util.List;
 
 public class Stock {
 
-    private String symbol;
+    private final String symbol;
     private double currentPrice;
     private ArrayList<Double> historicalPrices; // ArrayList zur Speicherung historischer Preise
 

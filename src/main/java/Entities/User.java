@@ -5,10 +5,10 @@ import java.util.Map;
 
 public class User {
     private String id;
-    private String username;
-    private String email;
-    private String password; // Hinweis: Passwörter sollten verschlüsselt und sicher gespeichert werden
-    private Map<String, Integer> stocks;
+    private final String username;
+    private final String email;
+    private final String password; // Hinweis: Passwörter sollten verschlüsselt und sicher gespeichert werden
+    private final Map<String, Integer> stocks;
 
 
     public User(String username, String email, String password) {
@@ -33,10 +33,6 @@ public class User {
 
     public String getEmail() {
         return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
     }
 
     public String getPassword() {

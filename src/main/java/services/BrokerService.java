@@ -6,8 +6,8 @@ import Entities.TransactionType;
 import repositories.PortfolioRepository;
 
 public class BrokerService {
-    private PortfolioRepository portfolioRepository;
-    private StockService stockService;
+    private final PortfolioRepository portfolioRepository;
+    private final StockService stockService;
     private String portfolioId;
     private Portfolio portfolio;
 

@@ -12,7 +12,7 @@ public class LoginDialog extends JDialog {
     private JPasswordField passwordField;
     private JTextField emailField;
     private JButton loginButton, registerButton;
-    private UserController userController;
+    private final UserController userController;
 
     public LoginDialog(JFrame parent, UserService userService) {
         super(parent, "Login", true);
