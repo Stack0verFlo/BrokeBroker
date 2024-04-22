@@ -5,6 +5,7 @@ import javax.swing.*;
 import controllers.UserController;
 import services.UserService;
 import java.awt.*;
+import java.net.URL;
 
 public class LoginDialog extends JDialog {
     private JTextField usernameField;
@@ -15,46 +16,67 @@ public class LoginDialog extends JDialog {
 
     public LoginDialog(JFrame parent, UserService userService) {
         super(parent, "Login", true);
-        //this.userService = userService;
         this.userController = new UserController(userService);
+        JPanel mainPanel = new JPanel();
+        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        getContentPane().add(mainPanel);
+        addLogo(mainPanel);
+        addLoginForm(mainPanel);
+        pack();
+        setLocationRelativeTo(parent);
+    }
+    private void addLogo(JPanel mainPanel) {
+        URL imageUrl = getClass().getResource("/img/brokebroker.png");
+        assert imageUrl != null;
+        ImageIcon logoIcon = new ImageIcon(imageUrl);
+        Image image = logoIcon.getImage();
+        Image newImg = image.getScaledInstance(100, 100, Image.SCALE_SMOOTH);
+        logoIcon = new ImageIcon(newImg);
 
-        setSize(300, 200);
-        setLayout(new GridLayout(5, 2));
-
-        add(new JLabel("Username:"));
+        JLabel logoLabel = new JLabel(logoIcon);
+        logoLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        mainPanel.add(logoLabel);
+        mainPanel.add(Box.createVerticalStrut(10));
+    }
+    private void addLoginForm(JPanel mainPanel) {
+        JPanel formPanel = new JPanel();
+        formPanel.setLayout(new GridLayout(0, 2, 10, 10));
         usernameField = new JTextField();
-        add(usernameField);
-
-        add(new JLabel("Password:"));
         passwordField = new JPasswordField();
-        add(passwordField);
-
-        // Registrierungsfelder
-        add(new JLabel("Email: (Register)"));
         emailField = new JTextField();
-        add(emailField);
+
+        formPanel.add(new JLabel("Username:"));
+        formPanel.add(usernameField);
+        formPanel.add(new JLabel("Password:"));
+        formPanel.add(passwordField);
+        formPanel.add(new JLabel("Email (Register):"));
+        formPanel.add(emailField);
 
         loginButton = new JButton("Login");
-        loginButton.addActionListener(e -> authenticate());
-        add(loginButton);
-
         registerButton = new JButton("Register");
-        registerButton.addActionListener(e -> register());
-        add(registerButton);
 
-        setLocationRelativeTo(parent);
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 10, 0));
+        buttonPanel.add(loginButton);
+        buttonPanel.add(registerButton);
+
+        loginButton.addActionListener(e -> authenticate());
+        registerButton.addActionListener(e -> register());
+
+        mainPanel.add(formPanel);
+        mainPanel.add(buttonPanel);
     }
 
     private void authenticate() {
         String username = usernameField.getText();
         String password = new String(passwordField.getPassword());
         if (userController.authenticate(username, password)) {
-            // Authentifizierung erfolgreich
             JOptionPane.showMessageDialog(this, "Login successful.", "Success", JOptionPane.INFORMATION_MESSAGE);
             MainFrame mainFrame = (MainFrame) getParent();
-            mainFrame.refreshOnLogin(); // Aktualisiere das Hauptfenster
-            mainFrame.setVisible(true); // Zeige das Hauptfenster an
-            dispose(); // Schließe den LoginDialog
+            mainFrame.refreshOnLogin();
+            mainFrame.setVisible(true);
+            dispose();
         } else {
             JOptionPane.showMessageDialog(this, "Invalid username or password.", "Login Failed", JOptionPane.ERROR_MESSAGE);
         }
