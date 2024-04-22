@@ -11,7 +11,6 @@ import static org.mockito.Mockito.*;
 import Entities.Portfolio;
 import Entities.Stock;
 import repositories.PortfolioRepository;
-import repositories.StockRepository;
 import services.BrokerService;
 import services.StockService;
 
@@ -19,10 +18,6 @@ class BrokerServiceTest {
 
     @Mock
     private PortfolioRepository portfolioRepository;
-
-    @Mock
-    private StockRepository stockRepository;
-
     private BrokerService brokerService;
     private StockService stockService;
 
@@ -41,9 +36,7 @@ class BrokerServiceTest {
         when(portfolioRepository.findById(portfolioId)).thenReturn(portfolio);
         when(stockService.getCurrentPrice(symbol)).thenReturn(0.0);
 
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            brokerService.buyStock(portfolioId, symbol, 1);
-        });
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> brokerService.buyStock(portfolioId, symbol, 1));
 
         String expectedMessage = "Stock symbol not found or invalid price";
         String actualMessage = exception.getMessage();
@@ -74,9 +67,7 @@ class BrokerServiceTest {
         when(stockService.getCurrentPrice(symbol)).thenReturn(appleStock.getCurrentPrice());
 
         // Act & Assert
-        assertThrows(IllegalArgumentException.class, () -> {
-            brokerService.sellStock(portfolioId, symbol, 5);
-        });
+        assertThrows(IllegalArgumentException.class, () -> brokerService.sellStock(portfolioId, symbol, 5));
     }
 
     @Test
@@ -107,9 +98,7 @@ class BrokerServiceTest {
         when(portfolioRepository.findById(portfolioId)).thenReturn(null);
 
         // Act & Assert
-        assertThrows(IllegalStateException.class, () -> {
-            brokerService.sellStock(portfolioId, "AAPL", 1);
-        });
+        assertThrows(IllegalStateException.class, () -> brokerService.sellStock(portfolioId, "AAPL", 1));
     }
 
     @Test
@@ -121,8 +110,6 @@ class BrokerServiceTest {
         when(stockService.getCurrentPrice("AAPL")).thenReturn(150.0);
 
         // Act & Assert
-        assertThrows(IllegalArgumentException.class, () -> {
-            brokerService.buyStock(portfolioId, "AAPL", 1);
-        });
+        assertThrows(IllegalArgumentException.class, () -> brokerService.buyStock(portfolioId, "AAPL", 1));
     }
 }
