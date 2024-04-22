@@ -17,6 +17,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.List;
 
+
 public class PortfolioPanel extends JPanel implements PriceUpdateListener {
     private final PortfolioController portfolioController;
     private final UserController userController;
@@ -30,11 +31,13 @@ public class PortfolioPanel extends JPanel implements PriceUpdateListener {
     private JLabel balanceLabel;
     private JTable stocksTable;
     private DefaultTableModel stocksTableModel;
+    private final PortfolioService portfolioService;
 
     public PortfolioPanel(PortfolioService portfolioService, StockService stockService, UserService userService) {
         this.portfolioController = new PortfolioController(portfolioService);
         this.userController = new UserController(userService);
         this.stockService = stockService;
+        this.portfolioService = portfolioService;
         this.brokerService = MainFrame.getBrokerService(); // Assuming MainFrame is properly setting this.
 
         setLayout(new BorderLayout());
@@ -136,7 +139,7 @@ public class PortfolioPanel extends JPanel implements PriceUpdateListener {
             String portfolioId = portfolioIdLabel.getText();
             String symbol = (String) stocksComboBox.getSelectedItem();
             int quantity = Integer.parseInt(quantityTextField.getText());
-            brokerService.buyStock(portfolioId, symbol, quantity);
+            portfolioService.addStockToPortfolio(portfolioId, symbol, quantity);
             JOptionPane.showMessageDialog(this, "Stock added successfully", "Success", JOptionPane.INFORMATION_MESSAGE);
             loadCurrentUserPortfolio(); // Reload the current user's portfolio
         } catch (NumberFormatException ex) {
@@ -149,16 +152,7 @@ public class PortfolioPanel extends JPanel implements PriceUpdateListener {
             String portfolioId = portfolioIdLabel.getText();
             String symbol = (String) stocksComboBox.getSelectedItem();
             int quantity = Integer.parseInt(quantityTextField.getText());
-            Portfolio portfolio = portfolioController.getPortfolioByUserId(userController.getCurrentUser().getId());
-            if (portfolio == null) {
-                JOptionPane.showMessageDialog(this, "No portfolio loaded", "Error", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-            if (!portfolio.hasStock(symbol, quantity)) {
-                JOptionPane.showMessageDialog(this, "Insufficient stock to sell", "Error", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-            brokerService.sellStock(portfolioId, symbol, quantity);
+            portfolioService.removeStockFromPortfolio(portfolioId, symbol, quantity);
             JOptionPane.showMessageDialog(this, "Stock sold successfully", "Success", JOptionPane.INFORMATION_MESSAGE);
             loadCurrentUserPortfolio(); // Reload the current user's portfolio
         } catch (NumberFormatException ex) {

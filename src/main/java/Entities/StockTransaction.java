@@ -4,7 +4,7 @@ public class StockTransaction {
     private String symbol;
     private final int quantity;
     private final double price;
-    private final TransactionType type; // Enum für BUY oder SELL
+    private final TransactionType type;
 
     public StockTransaction(String symbol, int quantity, double price, TransactionType type) {
         this.symbol = symbol;
@@ -13,27 +13,27 @@ public class StockTransaction {
         this.type = type;
     }
 
-    public double getTotalPrice() {
+    public final double getTotalPrice() {
         return quantity * price;
     }
 
-    public String getSymbol() {
+    public final String getSymbol() {
         return symbol;
     }
 
-    public void setSymbol(String symbol) {
+    public final void setSymbol(String symbol) {
         this.symbol = symbol;
     }
 
-    public int getQuantity() {
+    public final int getQuantity() {
         return quantity;
     }
 
-    public double getPrice() {
+    public final double getPrice() {
         return price;
     }
 
-    public TransactionType getType() {
+    public final TransactionType getType() {
         return type;
     }
 }

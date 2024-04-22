@@ -18,23 +18,19 @@ public class PortfolioService {
         Portfolio portfolio = portfolioRepository.findById(portfolioId);
         Stock stock = stockRepository.findBySymbol(symbol);
         if (portfolio != null && stock != null) {
-            portfolio.addStock(String.valueOf(stock), quantity, stock.getCurrentPrice());
+            portfolio.addStock(symbol, quantity, stock.getCurrentPrice());
             portfolioRepository.save(portfolio);
         }
     }
 
     public void removeStockFromPortfolio(String portfolioId, String symbol, int quantity) {
         Portfolio portfolio = portfolioRepository.findById(portfolioId);
-        Stock stock = stockRepository.findBySymbol(symbol);
-        if (portfolio != null && stock != null) {
-            portfolio.removeStock(String.valueOf(stock), quantity);
+        if (portfolio != null) {
+            portfolio.removeStock(symbol, quantity);
             portfolioRepository.save(portfolio);
         }
     }
 
-    public Portfolio getPortfolio(String portfolioId) {
-        return portfolioRepository.findById(portfolioId);
-    }
     public Portfolio getPortfolioByUserId(String userId) {
         return portfolioRepository.findByUserId(userId);
     }

@@ -13,7 +13,7 @@ import services.StockService;
 import javax.swing.*;
 
 public class MainFrame extends JFrame {
-    private static UserService userService; // Als Singleton behandeln
+    private static UserService userService;
     private static StockService stockService;
     private static PortfolioService portfolioService;
     private static BrokerService brokerService;
@@ -23,7 +23,7 @@ public class MainFrame extends JFrame {
         setSize(800, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
-        initializeServices(); // Initialisiert die Services bei der Erstellung des Hauptfensters
+        initializeServices();
     }
 
     private void initializeServices() {
