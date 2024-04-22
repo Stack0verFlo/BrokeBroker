@@ -20,7 +20,7 @@ public class StockService {
         this.initializeStocks();
     }
 
-    private void initializeStocks() {
+    public void initializeStocks() {
         if (stockRepository.isEmpty()) {
             String[] symbols = {"AAPL", "GOOGL", "MSFT", "AMZN", "FB", "TSLA", "NFLX", "INTC", "AMD", "NVDA"};
             for (String symbol : symbols) {

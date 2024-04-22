@@ -20,6 +20,12 @@ public class BrokerService {
         this.portfolioId = portfolioId;
         this.portfolio = portfolioRepository.findById(portfolioId);
         double stockPrice = stockService.getCurrentPrice(symbol);
+
+        if (stockPrice <= 0) {
+            // Handle the case where the stock does not exist or the price is not valid.
+            throw new IllegalArgumentException("Stock symbol not found or invalid price");
+        }
+
         double totalPrice = stockPrice * quantity;
 
         if (portfolio.canAfford(totalPrice)) {
