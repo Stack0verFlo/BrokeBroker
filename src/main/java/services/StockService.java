@@ -21,24 +21,24 @@ public class StockService {
     }
 
     public void initializeStocks() {
-        if (stockRepository.isEmpty()) {
+        if (stockRepository.isStockListEmpty()) {
             String[] symbols = {"AAPL", "GOOGL", "MSFT", "AMZN", "FB", "TSLA", "NFLX", "INTC", "AMD", "NVDA"};
             for (String symbol : symbols) {
                 double initialPrice = 100 + (random.nextDouble() * 100); // Preis zwischen 100 und 200
-                stockRepository.save(new Stock(symbol, initialPrice));
+                stockRepository.saveStock(new Stock(symbol, initialPrice));
             }
         }
     }
 
     public void updateStockPrice(String symbol) {
-        Stock stock = stockRepository.findBySymbol(symbol);
+        Stock stock = stockRepository.findStockBySymbol(symbol);
         if (stock != null) {
             double currentPrice = stock.getCurrentPrice();
             double newPrice = currentPrice + (random.nextGaussian() * 10); // Neuer Preis wird generiert
             newPrice = Math.max(newPrice, 1.0);
             stock.addHistoricalPrice(currentPrice);
             stock.setCurrentPrice(newPrice);
-            stockRepository.save(stock);
+            stockRepository.saveStock(stock);
 
             if (priceUpdateListener != null) {
                 priceUpdateListener.onPriceUpdate(symbol, newPrice);
@@ -47,12 +47,12 @@ public class StockService {
     }
 
     public Stock getStock(String symbol) {
-        return stockRepository.findBySymbol(symbol);
+        return stockRepository.findStockBySymbol(symbol);
     }
     public List<String> getAllSymbols() {
         // Diese Methode sollte alle Aktiensymbole aus der Datenbank holen.
         // Hier ein Beispielcode, der eine vordefinierte Liste zurückgibt:
-        return stockRepository.findAll().stream()
+        return stockRepository.findAllStocks().stream()
                 .map(Stock::getSymbol)
                 .collect(Collectors.toList());
     }

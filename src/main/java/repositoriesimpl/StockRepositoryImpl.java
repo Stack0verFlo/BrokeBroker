@@ -19,25 +19,25 @@ public class StockRepositoryImpl implements StockRepository {
     }
 
     @Override
-    public boolean isEmpty() {
+    public boolean isStockListEmpty() {
         return collection.countDocuments() == 0;
     }
 
     @Override
-    public Stock findBySymbol(String symbol) {
+    public Stock findStockBySymbol(String symbol) {
         Document doc = collection.find(eq("symbol", symbol)).first();
         return doc != null ? documentToStock(doc) : null;
     }
 
     @Override
-    public void save(Stock stock) {
+    public void saveStock(Stock stock) {
         Document doc = new Document("symbol", stock.getSymbol())
                 .append("currentPrice", stock.getCurrentPrice())
                 .append("historicalPrices", stock.getHistoricalPrices(40));
         collection.replaceOne(eq("symbol", stock.getSymbol()), doc, new com.mongodb.client.model.ReplaceOptions().upsert(true));
     }
     @Override
-    public List<Stock> findAll() {
+    public List<Stock> findAllStocks() {
         List<Stock> stocks = new ArrayList<>();
         for (Document doc : collection.find()) {
             stocks.add(documentToStock(doc));

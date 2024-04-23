@@ -63,21 +63,8 @@ public class PortfolioPanel extends JPanel implements PriceUpdateListener {
         }
     }
     public void updateForCurrentUser() {
-        User currentUser = userController.getCurrentUser();
-        if (currentUser != null) {
-            Portfolio currentPortfolio = portfolioController.getPortfolioByUserId(currentUser.getId());
-            if (currentPortfolio != null) {
-                SwingUtilities.invokeLater(() -> {
-                    portfolioIdLabel.setText(currentPortfolio.getId());
-                    balanceLabel.setText(String.format("Balance: %.2f", currentPortfolio.getBalance()));
-                    loadStocksInTable(currentPortfolio.getStocks());
-                });
-            } else {
-                clearPortfolioDisplay();
-            }
-        } else {
-            clearPortfolioDisplay();
-        }
+        loadCurrentUserPortfolio();
+
     }
     private void clearPortfolioDisplay() {
         SwingUtilities.invokeLater(() -> {
@@ -111,7 +98,9 @@ public class PortfolioPanel extends JPanel implements PriceUpdateListener {
 
     private JScrollPane createStocksTable() {
         stocksTableModel = new DefaultTableModel(new Object[]{"Symbol", "Quantity", "Purchase Price"}, 0);
+
         stocksTable = new JTable(stocksTableModel);
+
         return new JScrollPane(stocksTable);
     }
 
@@ -119,15 +108,13 @@ public class PortfolioPanel extends JPanel implements PriceUpdateListener {
         User currentUser = userController.getCurrentUser();
         if (currentUser != null) {
             Portfolio currentPortfolio = portfolioController.getPortfolioByUserId(currentUser.getId());
-            if (currentPortfolio != null) {
-                SwingUtilities.invokeLater(() -> {
-                    portfolioIdLabel.setText(currentPortfolio.getId());
-                    balanceLabel.setText(String.format("Balance: %.2f", currentPortfolio.getBalance()));
-                    loadStocksInTable(currentPortfolio.getStocks());
-                });
-            }
+            updatePortfolioDisplay(currentPortfolio);
+        } else {
+            clearPortfolioDisplay();
         }
     }
+
+
 
     private void updatePriceDisplay(String symbol) {
         double price = stockService.getCurrentPrice(symbol);
@@ -135,28 +122,40 @@ public class PortfolioPanel extends JPanel implements PriceUpdateListener {
     }
 
     private void addStock(ActionEvent e) {
+        String symbol = (String) stocksComboBox.getSelectedItem();
+        String quantityText = quantityTextField.getText();
         try {
+            int quantity = Integer.parseInt(quantityText);
+            if (quantity <= 0) {
+                JOptionPane.showMessageDialog(this, "Die Menge muss eine positive Zahl sein.", "Ungültige Menge", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
             String portfolioId = portfolioIdLabel.getText();
-            String symbol = (String) stocksComboBox.getSelectedItem();
-            int quantity = Integer.parseInt(quantityTextField.getText());
+            brokerService.buyStock(portfolioId, symbol, quantity);
             portfolioService.addStockToPortfolio(portfolioId, symbol, quantity);
-            JOptionPane.showMessageDialog(this, "Stock added successfully", "Success", JOptionPane.INFORMATION_MESSAGE);
-            loadCurrentUserPortfolio(); // Reload the current user's portfolio
+            JOptionPane.showMessageDialog(this, "Aktie erfolgreich hinzugefügt", "Erfolg", JOptionPane.INFORMATION_MESSAGE);
+            loadCurrentUserPortfolio(); // Lädt das Portfolio des aktuellen Benutzers neu, inklusive Balance
         } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(this, "Invalid quantity", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Bitte geben Sie eine gültige Zahl ein.", "Ungültige Eingabe", JOptionPane.ERROR_MESSAGE);
         }
     }
 
     private void sellStock(ActionEvent e) {
+        String symbol = (String) stocksComboBox.getSelectedItem();
+        String quantityText = quantityTextField.getText();
         try {
+            int quantity = Integer.parseInt(quantityText);
+            if (quantity <= 0) {
+                JOptionPane.showMessageDialog(this, "Die Menge muss eine positive Zahl sein.", "Ungültige Menge", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
             String portfolioId = portfolioIdLabel.getText();
-            String symbol = (String) stocksComboBox.getSelectedItem();
-            int quantity = Integer.parseInt(quantityTextField.getText());
+            brokerService.sellStock(portfolioId, symbol, quantity);
             portfolioService.removeStockFromPortfolio(portfolioId, symbol, quantity);
-            JOptionPane.showMessageDialog(this, "Stock sold successfully", "Success", JOptionPane.INFORMATION_MESSAGE);
-            loadCurrentUserPortfolio(); // Reload the current user's portfolio
+            JOptionPane.showMessageDialog(this, "Aktie erfolgreich verkauft", "Erfolg", JOptionPane.INFORMATION_MESSAGE);
+            loadCurrentUserPortfolio(); // Lädt das Portfolio des aktuellen Benutzers neu, inklusive Balance
         } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(this, "Invalid quantity", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Bitte geben Sie eine gültige Zahl ein.", "Ungültige Eingabe", JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -164,6 +163,18 @@ public class PortfolioPanel extends JPanel implements PriceUpdateListener {
         stocksTableModel.setRowCount(0);
         for (StockEntry stock : stocks) {
             stocksTableModel.addRow(new Object[]{stock.getSymbol(), stock.getQuantity(), String.format("%.2f", stock.getPurchasePrice())});
+        }
+    }
+
+    private void updatePortfolioDisplay(Portfolio portfolio) {
+        if (portfolio != null) {
+            SwingUtilities.invokeLater(() -> {
+                portfolioIdLabel.setText(portfolio.getId());
+                balanceLabel.setText(String.format("Balance: %.2f", portfolio.getBalance()));
+                loadStocksInTable(portfolio.getStocks());
+            });
+        } else {
+            clearPortfolioDisplay();
         }
     }
 

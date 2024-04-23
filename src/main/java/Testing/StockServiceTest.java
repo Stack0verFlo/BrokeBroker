@@ -33,27 +33,27 @@ class StockServiceTest {
 
     @Test
     void shouldInitializeStocksWhenEmpty() {
-        when(stockRepository.isEmpty()).thenReturn(true);
+        when(stockRepository.isStockListEmpty()).thenReturn(true);
         stockService.initializeStocks();
-        verify(stockRepository, times(10)).save(any(Stock.class));
+        verify(stockRepository, times(10)).saveStock(any(Stock.class));
     }
 
     @Test
     void shouldNotInitializeStocksWhenNotEmpty() {
-        when(stockRepository.isEmpty()).thenReturn(false);
+        when(stockRepository.isStockListEmpty()).thenReturn(false);
         stockService.initializeStocks();
-        verify(stockRepository, never()).save(any(Stock.class));
+        verify(stockRepository, never()).saveStock(any(Stock.class));
     }
 
     @Test
     void updateStockPriceShouldUpdateAndNotifyListener() {
         Stock stock = new Stock("AAPL", 100);
-        when(stockRepository.findBySymbol("AAPL")).thenReturn(stock);
+        when(stockRepository.findStockBySymbol("AAPL")).thenReturn(stock);
         stockService.setPriceUpdateListener(priceUpdateListener);
 
         stockService.updateStockPrice("AAPL");
 
-        verify(stockRepository).save(stock);
+        verify(stockRepository).saveStock(stock);
         verify(priceUpdateListener).onPriceUpdate(eq("AAPL"), anyDouble());
         assertNotEquals(100.0, stock.getCurrentPrice());
     }
@@ -61,16 +61,16 @@ class StockServiceTest {
     @Test
     void updateStockPriceShouldNotGoBelowOne() {
         Stock stock = new Stock("AAPL", 1.5);
-        when(stockRepository.findBySymbol("AAPL")).thenReturn(stock);
+        when(stockRepository.findStockBySymbol("AAPL")).thenReturn(stock);
         stockService.updateStockPrice("AAPL");
-        verify(stockRepository).save(stock);
+        verify(stockRepository).saveStock(stock);
         assertTrue(stock.getCurrentPrice() >= 1.0);
     }
 
     @Test
     void getStockShouldReturnCorrectStock() {
         Stock apple = new Stock("AAPL", 150);
-        when(stockRepository.findBySymbol("AAPL")).thenReturn(apple);
+        when(stockRepository.findStockBySymbol("AAPL")).thenReturn(apple);
 
         Stock result = stockService.getStock("AAPL");
         assertEquals(apple, result);
@@ -79,7 +79,7 @@ class StockServiceTest {
     @Test
     void getAllSymbolsShouldReturnListOfSymbols() {
         List<Stock> stocks = Arrays.asList(new Stock("AAPL", 150), new Stock("GOOGL", 1000));
-        when(stockRepository.findAll()).thenReturn(stocks);
+        when(stockRepository.findAllStocks()).thenReturn(stocks);
 
         List<String> symbols = stockService.getAllSymbols();
         assertEquals(Arrays.asList("AAPL", "GOOGL"), symbols);
@@ -87,9 +87,9 @@ class StockServiceTest {
 
     @Test
     void updateStockPriceShouldDoNothingWhenStockNotFound() {
-        when(stockRepository.findBySymbol("UNKNOWN")).thenReturn(null);
+        when(stockRepository.findStockBySymbol("UNKNOWN")).thenReturn(null);
         stockService.updateStockPrice("UNKNOWN");
-        verify(stockRepository, never()).save(any(Stock.class));
+        verify(stockRepository, never()).saveStock(any(Stock.class));
         verifyNoInteractions(priceUpdateListener);
     }
 }

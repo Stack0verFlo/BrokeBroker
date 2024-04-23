@@ -33,8 +33,9 @@ public class StockPanel extends JPanel {
         setLayout(new BorderLayout());
         initializeComponents();
         add(createControlPanel(), BorderLayout.NORTH);
-        updateChart(stockController.getAllSymbols().get(0)); // Initialisiere das Chart mit dem ersten Symbol
-        add(chartPanel, BorderLayout.CENTER);
+        chartPanel = new ChartPanel(null); // Initialisiere das ChartPanel explizit mit null
+        add(chartPanel, BorderLayout.CENTER); // Füge das ChartPanel direkt nach der Initialisierung hinzu
+        initializeChart();  // Setup the initial chart using symbols
         this.stockService.setPriceUpdateListener(portfolioPanel);
     }
 
@@ -45,8 +46,7 @@ public class StockPanel extends JPanel {
         updatePriceButton = new JButton("Update Price");
         updatePriceButton.addActionListener(this::handleUpdatePriceAction);
         currentPriceLabel = new JLabel();
-        chartPanel = new ChartPanel(null);
-        updateCurrentPriceDisplay(allSymbols.get(0)); // Zeigt den aktuellen Preis für das erste Symbol an
+        updateCurrentPriceDisplay(allSymbols.get(0)); // Displays the current price for the first symbol
     }
 
     private JPanel createControlPanel() {
@@ -59,6 +59,13 @@ public class StockPanel extends JPanel {
         return panel;
     }
 
+    private void initializeChart() {
+        String initialSymbol = stockController.getAllSymbols().get(0);
+        if (initialSymbol != null) {
+            updateChart(initialSymbol); // Initialize the chart with the first symbol
+        }
+    }
+
     private void handleStockSelectionAction(ActionEvent e) {
         String symbol = (String) stockSymbolComboBox.getSelectedItem();
         updateCurrentPriceDisplay(symbol);
@@ -67,9 +74,9 @@ public class StockPanel extends JPanel {
 
     private void handleUpdatePriceAction(ActionEvent e) {
         String symbol = (String) stockSymbolComboBox.getSelectedItem();
-        stockService.updateStockPrice(symbol); // Benachrichtigt Listener, einschließlich PortfolioPanel
+        stockService.updateStockPrice(symbol); // Notifies listeners, including PortfolioPanel
         updateChart(symbol);
-        updateCurrentPriceDisplay(symbol); // Aktualisiert den Preis auf dem StockPanel
+        updateCurrentPriceDisplay(symbol); // Updates the price on the StockPanel
     }
 
     private void updateCurrentPriceDisplay(String symbol) {
@@ -79,36 +86,42 @@ public class StockPanel extends JPanel {
 
     private void updateChart(String symbol) {
         SwingUtilities.invokeLater(() -> {
-            Stock stock = stockController.getStock(symbol);
-            XYSeries series = new XYSeries("Historische Preise");
-
-            // Hier verwenden Sie die neue Methode, um nur die letzten 40 Preise zu bekommen
-            List<Double> prices = stock.getHistoricalPrices(40);
-            for (int i = 0; i < prices.size(); i++) {
-                series.add(i, prices.get(i));
-            }
-            // Fügen Sie den aktuellen Preis als letzten Datenpunkt hinzu
-            series.add(prices.size(), stock.getCurrentPrice());
-
-            XYSeriesCollection dataset = new XYSeriesCollection(series);
-            JFreeChart chart = ChartFactory.createXYLineChart(
-                    symbol + " Preisverlauf",
-                    "Zeitpunkt",
-                    "Preis",
-                    dataset,
-                    PlotOrientation.VERTICAL,
-                    true,
-                    true,
-                    false);
-
-            if (chartPanel != null) {
-                this.remove(chartPanel);
-            }
-            chartPanel = new ChartPanel(chart);
-            this.add(chartPanel, BorderLayout.CENTER);
-
-            this.revalidate();
-            this.repaint();
+            JFreeChart chart = createChart(symbol);
+            setupChartPanel(chart);
         });
+    }
+
+    private JFreeChart createChart(String symbol) {
+        XYSeriesCollection dataset = createDataset(symbol);
+        return ChartFactory.createXYLineChart(
+                symbol + " Preisverlauf",
+                "Zeitpunkt",
+                "Preis",
+                dataset,
+                PlotOrientation.VERTICAL,
+                true,
+                true,
+                false);
+    }
+
+    private XYSeriesCollection createDataset(String symbol) {
+        Stock stock = stockController.getStock(symbol);
+        XYSeries series = new XYSeries("Historische Preise");
+        List<Double> prices = stock.getHistoricalPrices(40);
+        for (int i = 0; i < prices.size(); i++) {
+            series.add(i, prices.get(i));
+        }
+        series.add(prices.size(), stock.getCurrentPrice());
+        return new XYSeriesCollection(series);
+    }
+
+    private void setupChartPanel(JFreeChart chart) {
+        if (chartPanel != null) {
+            this.remove(chartPanel);
+        }
+        chartPanel = new ChartPanel(chart);
+        this.add(chartPanel, BorderLayout.CENTER);
+        this.revalidate();
+        this.repaint();
     }
 }

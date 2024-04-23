@@ -16,7 +16,7 @@ public class PortfolioService {
 
     public void addStockToPortfolio(String portfolioId, String symbol, int quantity) {
         Portfolio portfolio = portfolioRepository.findById(portfolioId);
-        Stock stock = stockRepository.findBySymbol(symbol);
+        Stock stock = stockRepository.findStockBySymbol(symbol);
         if (portfolio != null && stock != null) {
             portfolio.addStock(symbol, quantity, stock.getCurrentPrice());
             portfolioRepository.save(portfolio);
