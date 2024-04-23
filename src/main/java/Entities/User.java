@@ -7,7 +7,7 @@ public class User {
     private String id;
     private final String username;
     private final String email;
-    private final String password; // Hinweis: Passwörter sollten verschlüsselt und sicher gespeichert werden
+    private String password;
     private final Map<String, Integer> stocks;
 
 
@@ -38,4 +38,5 @@ public class User {
     public String getPassword() {
         return password;
     }
+
 }
