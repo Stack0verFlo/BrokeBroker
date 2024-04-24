@@ -132,7 +132,6 @@ public class PortfolioPanel extends JPanel implements PriceUpdateListener {
             }
             String portfolioId = portfolioIdLabel.getText();
             brokerService.buyStock(portfolioId, symbol, quantity);
-            portfolioService.addStockToPortfolio(portfolioId, symbol, quantity);
             JOptionPane.showMessageDialog(this, "Aktie erfolgreich hinzugefügt", "Erfolg", JOptionPane.INFORMATION_MESSAGE);
             loadCurrentUserPortfolio(); // Lädt das Portfolio des aktuellen Benutzers neu, inklusive Balance
         } catch (NumberFormatException ex) {
@@ -151,7 +150,6 @@ public class PortfolioPanel extends JPanel implements PriceUpdateListener {
             }
             String portfolioId = portfolioIdLabel.getText();
             brokerService.sellStock(portfolioId, symbol, quantity);
-            portfolioService.removeStockFromPortfolio(portfolioId, symbol, quantity);
             JOptionPane.showMessageDialog(this, "Aktie erfolgreich verkauft", "Erfolg", JOptionPane.INFORMATION_MESSAGE);
             loadCurrentUserPortfolio(); // Lädt das Portfolio des aktuellen Benutzers neu, inklusive Balance
         } catch (NumberFormatException ex) {
