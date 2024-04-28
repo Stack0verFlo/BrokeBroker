@@ -3,6 +3,8 @@ Clone the Git repository from branch cleanbroker
 
 On Windows: Install Docker Dekstop: https://www.docker.com/products/docker-desktop/ to run the DB
 add a .env like in the example
+
+
 start docker desktop
 do a 'docker compose up' within the terminal of you IDE after opening the project
 
