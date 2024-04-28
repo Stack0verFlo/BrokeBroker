@@ -1,7 +1,6 @@
 package controllers;
 
 import Entities.Stock;
-import repositories.PriceUpdateListener;
 import services.StockService;
 
 import java.util.List;

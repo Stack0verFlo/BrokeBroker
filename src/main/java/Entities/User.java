@@ -8,7 +8,7 @@ public class User {
     private final String username;
     private final String email;
     private String password;
-    private final Map<String, Integer> stocks;
+
 
 
     public User(String username, String email, String password) {
@@ -16,7 +16,7 @@ public class User {
         this.username = username;
         this.email = email;
         this.password = password;
-        this.stocks = new HashMap<>();
+
     }
 
     public void setId(String id) {
